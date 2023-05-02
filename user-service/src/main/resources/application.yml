@@ -7,17 +7,20 @@ spring:
   h2:
     console:
       enabled: true
-    profiles:
-      active: local
-    datasource:
-      url: jdbc:h2:tcp://localhost/~/user-service
-      username: sa
-      password: 1234
-      driver-class-name: org.h2.Driver
-    jpa:
-      show-sql: true
-      hibernate:
-        ddl-auto: create
+      settings:
+        web-allow-others: true
+
+  profiles:
+    active: local
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/user-service
+    username: sa
+    password: 1234
+    driver-class-name: org.h2.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
 
 eureka:
   instance:

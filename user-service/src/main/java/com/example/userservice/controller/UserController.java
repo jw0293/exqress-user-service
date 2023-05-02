@@ -31,7 +31,7 @@ public class UserController {
         return greeting.getMessage();
     }
 
-    @PostMapping("/uesrs")
+    @PostMapping("/users")
     public ResponseEntity createUser(@RequestBody RequestUser user){
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
