@@ -40,10 +40,9 @@ public class WebSecurity {
                     .authorizeHttpRequests().requestMatchers("/h2-console/**").permitAll()
                 .and()
                     .authorizeHttpRequests()
-                    .anyRequest().permitAll()
+                    .requestMatchers("/**").permitAll()
                 .and()
-                    .addFilter(getAuthenticationFilter());
-                //.access(hasIpAddress("192.168.0.8"))
+                        .addFilter(getAuthenticationFilter());
 
         return http.build();
     }

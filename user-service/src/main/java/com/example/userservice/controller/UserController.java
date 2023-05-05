@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,14 @@ public class UserController {
 
     private final Greeting greeting;
     private final UserServiceImpl userService;
+    private final Environment env;
 
     @GetMapping("/health_check")
     public String status(){
-        return "It's Working in User Service on PORT";
+        return String.format("It's Working in User Service"
+                + ", port(server.port) = " + env.getProperty("server.port")
+                + ", token secret = " + env.getProperty("token.secret")
+                + ", token expiration time = " + env.getProperty("token.expiration_time"));
     }
 
     @GetMapping("/welcome")

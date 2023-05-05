@@ -34,6 +34,12 @@ eureka:
 greeting:
   message: Welcome to the exqress-user-service!
 
-token:
-  expiration_time: 86400000 # 토큰 유효 시간 하루로 설정
-  secret: exqress-user-token
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans
+
+#token:
+#  expiration_time: 86400 # 토큰 유효 시간 하루로 설정
+#  secret: exqress-token
