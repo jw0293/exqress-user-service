@@ -36,6 +36,9 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.0.0'
 	implementation "org.springframework.boot:spring-boot-starter-actuator"
 
+	// https://mvnrepository.com/artifact/com.rabbitmq/amqp-client
+	implementation 'com.rabbitmq:amqp-client:5.16.0'
+
 
 	implementation "io.jsonwebtoken:jjwt:0.9.1"
 	// https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
