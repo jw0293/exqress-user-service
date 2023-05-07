@@ -1,6 +1,7 @@
 package com.example.userservice.security;
 
-import com.example.userservice.service.UserService;
+import com.example.userservice.service.TokenService;
+import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
-import static org.springframework.security.web.server.authorization.IpAddressReactiveAuthorizationManager.hasIpAddress;
-
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -27,6 +26,7 @@ public class WebSecurity {
 
     private final Environment env;
     private final UserServiceImpl userService;
+    private final TokenServiceImpl tokenService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -42,7 +42,7 @@ public class WebSecurity {
                     .authorizeHttpRequests()
                     .requestMatchers("/**").permitAll()
                 .and()
-                        .addFilter(getAuthenticationFilter());
+                .addFilter(getAuthenticationFilter());
 
         return http.build();
     }
@@ -68,7 +68,7 @@ public class WebSecurity {
     }
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(userService, env);
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(userService, tokenService);
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;

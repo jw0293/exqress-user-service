@@ -35,6 +35,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-config:4.0.2'
 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.0.0'
 	implementation "org.springframework.boot:spring-boot-starter-actuator"
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
 	// https://mvnrepository.com/artifact/com.rabbitmq/amqp-client
 	implementation 'com.rabbitmq:amqp-client:5.16.0'

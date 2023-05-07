@@ -17,11 +17,11 @@ spring:
 
   profiles:
     active: local
-  datasource:
-    url: jdbc:h2:tcp://localhost/~/user-service
-    username: sa
-    password: 1234
-    driver-class-name: org.h2.Driver
+#  datasource:
+#    url: jdbc:h2:tcp://localhost/~/user-service
+#    username: sa
+#    password: 1234
+#    driver-class-name: org.h2.Driver
   jpa:
     show-sql: true
     hibernate:
@@ -43,7 +43,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans
+        include: refresh, health, beans, httptrace, busrefresh
 
 #token:
 #  expiration_time: 86400 # 토큰 유효 시간 하루로 설정
