@@ -1,6 +1,7 @@
-package com.example.userservice.security;
+package com.example.userservice.config;
 
-import com.example.userservice.service.TokenService;
+import com.example.userservice.security.AuthenticationFilter;
+import com.example.userservice.security.CustomAuthenticationProvider;
 import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
-public class WebSecurity {
+public class WebSecurityConfig {
 
     private final Environment env;
     private final UserServiceImpl userService;

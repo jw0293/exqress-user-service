@@ -1,5 +1,6 @@
 package com.example.userservice.service;
 
+import com.example.userservice.client.DeliveryServiceClient;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.jpa.UserEntity;
 import com.example.userservice.repository.UserRepository;
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService{
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final DeliveryServiceClient deliveryServiceClient;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -82,13 +84,14 @@ public class UserServiceImpl implements UserService{
         UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
 
         /** Using RestTemplate **/
-        String deliveryUrl = String.format(env.getProperty("order_service.url"), userId);
-        ResponseEntity<List<ResponseItem>> itemListResponse =
-                restTemplate.exchange(deliveryUrl, HttpMethod.GET, null,
-                            new ParameterizedTypeReference<List<ResponseItem>>() {
-                });
+//        String deliveryUrl = String.format(env.getProperty("order_service.url"), userId);
+//        ResponseEntity<List<ResponseItem>> itemListResponse =
+//                restTemplate.exchange(deliveryUrl, HttpMethod.GET, null,
+//                            new ParameterizedTypeReference<List<ResponseItem>>() {
+//                });
 
-        List<ResponseItem> itemList = itemListResponse.getBody();
+        /** Using a feign client **/
+        List<ResponseItem> itemList = deliveryServiceClient.getItems(userId);
         userDto.setItems(itemList);
 
         return userDto;
