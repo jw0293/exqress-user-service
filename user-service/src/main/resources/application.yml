@@ -4,37 +4,37 @@ server:
 spring:
   application:
     name: user-service
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: guest
-    password: guest
-#  datasource:
-#    url: jdbc:h2:tcp://localhost/~/user-service
-#    username: sa
-#    password: 1234
-#    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: true
-
-  profiles:
-    active: local
+#  rabbitmq:
+#    host: 127.0.0.1
+#    port: 5672
+#    username: guest
+#    password: guest
+##  datasource:
+##    url: jdbc:h2:tcp://localhost/~/user-service
+##    username: sa
+##    password: 1234
+##    driver-class-name: org.h2.Driver
+#  h2:
+#    console:
+#      enabled: true
+#      settings:
+#        web-allow-others: true
+#
+#  profiles:
+#    active: local
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: create
 
-eureka:
-  instance:
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
+#eureka:
+#  instance:
+#    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: http://127.0.0.1:8761/eureka
 
 greeting:
   message: Welcome to the exqress-user-service!
@@ -43,7 +43,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, httptrace, busrefresh
+        include: *
 
 #token:
 #  expiration_time: 86400 # 토큰 유효 시간 하루로 설정
