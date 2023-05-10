@@ -70,6 +70,7 @@ public class WebSecurityConfig {
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
         AuthenticationFilter authenticationFilter = new AuthenticationFilter(userService, tokenService);
+        authenticationFilter.setFilterProcessesUrl("/user/login");
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;
