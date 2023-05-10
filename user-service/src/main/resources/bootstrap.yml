@@ -1,7 +1,7 @@
 spring:
   cloud:
     config:
-      uri: http://127.0.0.1:8888
-      name: user-service
+      uri: http://back-config-svc.default.svc
+      name: capstone-config
 #  profiles:
 #    active: dev
