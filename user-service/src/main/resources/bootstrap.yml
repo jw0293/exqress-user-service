@@ -1,10 +1,10 @@
 encrypt:
   key: bkdkljarmsv133mbavji9hnenbg
 
-spring:
-  cloud:
-    config:
-      uri: http://back-config-svc.default.svc.cluster.local
-      name: capstone-config
+#spring:
+#  cloud:
+#    config:
+#      uri: http://back-config-svc.default.svc.cluster.local
+#      name: capstone-config
 #      uri: http://127.0.0.1:8888
 #      name: user-service
