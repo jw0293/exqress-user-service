@@ -36,7 +36,10 @@ public class UserController {
     @GetMapping("/welcome")
     public String welcome(){
         log.error("Good!");
-        return greeting.getMessage();
+        String msg = greeting.getMessage();
+        String dataSourceUrl = env.getProperty("spring.datasource.url");
+
+        return msg + dataSourceUrl;
     }
 
     @PostMapping("/users")

@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: user-service
+    name: capstone
 #  rabbitmq:
 #    host: 127.0.0.1
 #    port: 5672
@@ -43,7 +43,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, httptrace, busrefresh
+        include: "*"
 
 #token:
 #  expiration_time: 86400 # 토큰 유효 시간 하루로 설정
