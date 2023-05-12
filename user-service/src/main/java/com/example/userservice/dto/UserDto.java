@@ -1,8 +1,7 @@
 package com.example.userservice.dto;
 
-import com.example.userservice.vo.ResponseItem;
+import com.example.userservice.vo.response.ResponseItem;
 import lombok.Data;
-import org.springframework.dao.DataAccessException;
 
 import java.util.*;
 

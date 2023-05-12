@@ -1,10 +1,12 @@
 package com.example.userservice.security;
 
-import com.example.userservice.constants.AuthConstants;
+import com.example.userservice.StatusEnum;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserService;
-import com.example.userservice.vo.RequestLogin;
+import com.example.userservice.vo.request.RequestLogin;
+import com.example.userservice.vo.response.ResponseData;
+import com.example.userservice.vo.response.ResponseLogin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -32,15 +34,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
         try {
-            RequestLogin creds = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
+            RequestLogin creeds = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
 
-            log.info("Email : {}", creds.getEmail());
-            log.info("Passwor : {}", creds.getPassword());
+            log.info("Email : {}", creeds.getEmail());
+            log.info("Password : {}", creeds.getPassword());
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
-                        creds.getEmail(),
-                        creds.getPassword(),
+                        creeds.getEmail(),
+                        creeds.getPassword(),
                         new ArrayList<>()
             ));
 
@@ -55,7 +57,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-
+        ObjectMapper mapper = new ObjectMapper();
         String userName = ((User) authResult.getPrincipal()).getUsername();
         UserDto userDetails = userService.getUserDetailsByEmail(userName);
 
@@ -63,8 +65,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         log.info("Token : {}", token);
 
-        response.addHeader(AuthConstants.AUTH_HEADER, token);
-        response.addHeader(AuthConstants.USERID_HEADER, userDetails.getUserId());
-
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(mapper.writeValueAsString(new ResponseData(StatusEnum.OK, "로그인 성공", new ResponseLogin(token, userDetails.getUserId()))));
     }
 }

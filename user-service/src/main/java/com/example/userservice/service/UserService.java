@@ -9,4 +9,5 @@ public interface UserService extends UserDetailsService {
     UserDto getUserDetailsByEmail(String email);
 
     UserDto getUserByUserId(String userId);
+    boolean isDuplicated(String email);
 }

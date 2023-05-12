@@ -1,6 +1,6 @@
 package com.example.userservice.client;
 
-import com.example.userservice.vo.ResponseItem;
+import com.example.userservice.vo.response.ResponseItem;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

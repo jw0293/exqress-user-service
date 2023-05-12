@@ -1,15 +1,16 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.StatusEnum;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.service.UserServiceImpl;
-import com.example.userservice.vo.Greeting;
-import com.example.userservice.vo.RequestUser;
-import com.example.userservice.vo.ResponseUser;
+import com.example.userservice.vo.response.Greeting;
+import com.example.userservice.vo.request.RequestUser;
+import com.example.userservice.vo.response.ResponseData;
+import com.example.userservice.vo.response.ResponseUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,10 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity createUser(@RequestBody RequestUser user){
+    public ResponseEntity<ResponseData> createUser(@RequestBody RequestUser user){
+        if(userService.isDuplicated(user.getEmail())){
+            return new ResponseEntity<>(new ResponseData(StatusEnum.EXISTED, "이미존재하는 회원입니다.", ""), HttpStatus.CONFLICT);
+        }
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
@@ -52,7 +56,7 @@ public class UserController {
 
         ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseUser);
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK, "회원가입 성공", responseUser), HttpStatus.OK);
     }
 
 }

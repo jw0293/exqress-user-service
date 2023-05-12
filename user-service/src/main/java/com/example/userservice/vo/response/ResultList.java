@@ -1,4 +1,4 @@
-package com.example.userservice.vo;
+package com.example.userservice.vo.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
