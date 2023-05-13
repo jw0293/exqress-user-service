@@ -148,4 +148,27 @@ public class UserServiceImpl implements UserService{
         log.info("New 토큰 반환");
         return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "Token 정보가 갱신되었습니다.", newTokenInfo), HttpStatus.OK);
     }
+
+    public ResponseEntity<?> logout(RequestToken logout) {
+        // 1. Access Token 검증
+        if (!tokenUtils.isValidToken(logout.getAccessToken())) {
+            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "잘못된 요청입니다.", ""), HttpStatus.BAD_REQUEST);
+        }
+
+        // 2. Access Token 에서 User email 을 가져옵니다.
+        ResponseUser authentication = tokenUtils.getAuthentication(logout.getAccessToken());
+
+        // 3. Redis 에서 해당 User email 로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
+        if (redisTemplate.opsForValue().get("RT:" + authentication.getName()) != null) {
+            // Refresh Token 삭제
+            redisTemplate.delete("RT:" + authentication.getName());
+        }
+
+        // 4. 해당 Access Token 유효시간 가지고 와서 BlackList 로 저장하기
+        Long expiration = tokenUtils.getExpiration(logout.getAccessToken());
+        redisTemplate.opsForValue()
+                .set(logout.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "로그아웃 되었습니다.", ""), HttpStatus.OK);
+    }
 }

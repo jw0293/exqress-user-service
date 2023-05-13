@@ -1,4 +1,4 @@
-package com.example.userservice.jpa;
+package com.example.userservice.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

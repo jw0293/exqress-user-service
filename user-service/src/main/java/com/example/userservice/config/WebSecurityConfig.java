@@ -4,11 +4,13 @@ import com.example.userservice.security.AuthenticationFilter;
 import com.example.userservice.security.CustomAuthenticationProvider;
 import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserServiceImpl;
+import com.example.userservice.utils.TokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -26,8 +28,9 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 public class WebSecurityConfig {
 
     private final Environment env;
+    private final TokenUtils tokenUtils;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final UserServiceImpl userService;
-    private final TokenServiceImpl tokenService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -69,8 +72,8 @@ public class WebSecurityConfig {
     }
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(userService, tokenService);
-        authenticationFilter.setFilterProcessesUrl("/user/login");
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(userService, tokenUtils, redisTemplate);
+        authenticationFilter.setFilterProcessesUrl("/login");
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;

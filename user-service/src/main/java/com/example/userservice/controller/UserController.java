@@ -65,4 +65,9 @@ public class UserController {
         return userService.reissue(reissue);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody RequestToken logoutToken){
+        return userService.logout(logoutToken);
+    }
+
 }

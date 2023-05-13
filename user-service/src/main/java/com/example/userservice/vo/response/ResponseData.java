@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ResponseData {
 
-    private StatusEnum status;
+    private String status;
     private String message;
     private Object data;
 }

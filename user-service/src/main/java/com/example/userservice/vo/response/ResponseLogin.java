@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class ResponseLogin {
 
-    private String token;
     private String userId;
+    private long refreshTokenExpirationTime;
 }

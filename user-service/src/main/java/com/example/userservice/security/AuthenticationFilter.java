@@ -2,8 +2,9 @@ package com.example.userservice.security;
 
 import com.example.userservice.StatusEnum;
 import com.example.userservice.dto.UserDto;
-import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserService;
+import com.example.userservice.dto.TokenInfo;
+import com.example.userservice.utils.TokenUtils;
 import com.example.userservice.vo.request.RequestLogin;
 import com.example.userservice.vo.response.ResponseData;
 import com.example.userservice.vo.response.ResponseLogin;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -22,13 +24,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final UserService userService;
-    private final TokenServiceImpl tokenService;
+    private final TokenUtils tokenUtils;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
@@ -61,12 +65,17 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String userName = ((User) authResult.getPrincipal()).getUsername();
         UserDto userDetails = userService.getUserDetailsByEmail(userName);
 
-        String token = tokenService.createToken(userDetails);
+        TokenInfo tokenInfo = tokenUtils.generateToken(userDetails.getUserId());
 
-        log.info("Token : {}", token);
+        redisTemplate.opsForValue()
+                .set("RT:" + userDetails.getUserId(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
+
+        log.info("AccessToken : {}", tokenInfo.getAccessToken());
+        log.info("RefreshToken : {}", tokenInfo.getRefreshToken());
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(mapper.writeValueAsString(new ResponseData(StatusEnum.OK, "로그인 성공", new ResponseLogin(token, userDetails.getUserId()))));
+        response.setHeader("refreshToken", tokenInfo.getRefreshToken());
+        response.getWriter().write(mapper.writeValueAsString(new ResponseData(StatusEnum.OK.getStatusCode(), "로그인 성공", new ResponseLogin(userDetails.getUserId(), tokenInfo.getRefreshTokenExpirationTime()))));
     }
 }

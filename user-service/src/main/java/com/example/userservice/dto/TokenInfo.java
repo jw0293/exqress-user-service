@@ -1,19 +1,18 @@
 package com.example.userservice.dto;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
-@NoArgsConstructor
-@Getter
-public class Token {
+@Getter @Builder
+public class TokenInfo {
 
     private String accessToken;
     private String refreshToken;
     private Long refreshTokenExpirationTime;
 
-    public Token(String accessToken, String refreshToken, Long refreshTokenExpirationTime) {
+    public TokenInfo(String accessToken, String refreshToken, Long refreshTokenExpirationTime) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;

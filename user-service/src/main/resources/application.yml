@@ -9,6 +9,9 @@ spring:
 #    port: 5672
 #    username: guest
 #    password: guest
+  redis:
+    port: 6379
+    host: 127.0.0.1
   datasource:
     url: jdbc:h2:tcp://localhost/~/user-service
     username: sa
@@ -19,22 +22,11 @@ spring:
       enabled: true
       settings:
         web-allow-others: true
-#
-#  profiles:
-#    active: local
+
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: create
-
-#eureka:
-#  instance:
-#    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    service-url:
-#      defaultZone: http://127.0.0.1:8761/eureka
 
 greeting:
   message: Welcome to the exqress-user-service!
@@ -45,6 +37,7 @@ management:
       exposure:
         include: "*"
 
-#token:
-#  expiration_time: 86400 # 토큰 유효 시간 하루로 설정
-#  secret: exqress-token
+token:
+  access_expiration_time: 86400
+  refresh_expiration_time: 8640000
+  secret: exqress-token
