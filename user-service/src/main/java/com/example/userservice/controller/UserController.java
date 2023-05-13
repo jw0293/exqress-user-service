@@ -3,6 +3,7 @@ package com.example.userservice.controller;
 import com.example.userservice.StatusEnum;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.service.UserServiceImpl;
+import com.example.userservice.vo.request.RequestToken;
 import com.example.userservice.vo.response.Greeting;
 import com.example.userservice.vo.request.RequestUser;
 import com.example.userservice.vo.response.ResponseData;
@@ -46,7 +47,7 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<ResponseData> createUser(@RequestBody RequestUser user){
         if(userService.isDuplicated(user.getEmail())){
-            return new ResponseEntity<>(new ResponseData(StatusEnum.EXISTED, "이미존재하는 회원입니다.", ""), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new ResponseData(StatusEnum.EXISTED.getStatusCode(), "이미 존재하는 회원입니다.", ""), HttpStatus.CONFLICT);
         }
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -56,7 +57,12 @@ public class UserController {
 
         ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
 
-        return new ResponseEntity<>(new ResponseData(StatusEnum.OK, "회원가입 성공", responseUser), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원가입 성공", responseUser), HttpStatus.OK);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissue(@RequestBody RequestToken reissue) {
+        return userService.reissue(reissue);
     }
 
 }
