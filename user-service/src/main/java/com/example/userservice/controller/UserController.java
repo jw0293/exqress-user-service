@@ -62,11 +62,17 @@ public class UserController {
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(@RequestBody RequestToken reissue) {
+        log.info("Reissue accessToken : {}", reissue.getAccessToken());
+        log.info("Reissue refreshToken : {}", reissue.getRefreshToken());
+
         return userService.reissue(reissue);
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/logouts")
     public ResponseEntity<?> logout(@RequestBody RequestToken logoutToken){
+        log.info("Logout accessToken : {}", logoutToken.getAccessToken());
+        log.info("Logout refreshToken : {}", logoutToken.getRefreshToken());
+
         return userService.logout(logoutToken);
     }
 

@@ -46,7 +46,7 @@ public class WebSecurityConfig {
                     .authorizeHttpRequests()
                     .requestMatchers("/**").permitAll()
                 .and()
-                .addFilter(getAuthenticationFilter());
+                    .addFilter(getAuthenticationFilter());
 
         return http.build();
     }

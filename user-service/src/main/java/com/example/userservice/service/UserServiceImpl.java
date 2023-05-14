@@ -34,8 +34,8 @@ import java.util.concurrent.TimeUnit;
 public class UserServiceImpl implements UserService{
 
     private final Environment env;
-    private final RedisTemplate redisTemplate;
     private final TokenUtils tokenUtils;
+    private final RedisTemplate redisTemplate;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     // private final DeliveryServiceClient deliveryServiceClient;
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService{
         log.info("AuthUser UserId : {}", authenticationUser.getUserId());
 
         // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
-        String refreshToken = (String) redisTemplate.opsForValue().get("RT:" + authenticationUser.getName());
+        String refreshToken = (String) redisTemplate.opsForValue().get("RT:" + authenticationUser.getUserId());
         // (추가) 로그아웃되어 Redis 에 RefreshToken 이 존재하지 않는 경우 처리
         if(ObjectUtils.isEmpty(refreshToken)) {
             return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "잘못된 요청입니다.", ""), HttpStatus.BAD_REQUEST);
@@ -149,19 +149,25 @@ public class UserServiceImpl implements UserService{
         return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "Token 정보가 갱신되었습니다.", newTokenInfo), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> logout(RequestToken logout) {
+    @Override
+    public ResponseEntity<ResponseData> logout(RequestToken logout) {
         // 1. Access Token 검증
         if (!tokenUtils.isValidToken(logout.getAccessToken())) {
             return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "잘못된 요청입니다.", ""), HttpStatus.BAD_REQUEST);
         }
+        log.info("유효한 토큰 확인");
 
         // 2. Access Token 에서 User email 을 가져옵니다.
         ResponseUser authentication = tokenUtils.getAuthentication(logout.getAccessToken());
 
-        // 3. Redis 에서 해당 User email 로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
-        if (redisTemplate.opsForValue().get("RT:" + authentication.getName()) != null) {
+        log.info("AuthUser Name : {}", authentication.getName());
+        log.info("AuthUser Email : {}", authentication.getEmail());
+        log.info("AuthUser UserId : {}", authentication.getUserId());
+
+        // 3. Redis 에서 해당 User ID로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
+        if (redisTemplate.opsForValue().get("RT:" + authentication.getUserId()) != null) {
             // Refresh Token 삭제
-            redisTemplate.delete("RT:" + authentication.getName());
+            redisTemplate.delete("RT:" + authentication.getUserId());
         }
 
         // 4. 해당 Access Token 유효시간 가지고 와서 BlackList 로 저장하기
