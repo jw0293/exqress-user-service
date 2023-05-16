@@ -1,4 +1,4 @@
-package com.example.deliveryservice.constants;
+package com.example.userservice.constants;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

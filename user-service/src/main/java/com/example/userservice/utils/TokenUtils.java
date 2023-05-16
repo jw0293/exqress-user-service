@@ -72,11 +72,15 @@ public class TokenUtils {
 
     public boolean isValidToken(String token){
         try {
-            log.info("Valid Token : {}", token);
-            Date expiration = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
-            log.info("Get expiration : {}",expiration.getTime());
+            Date expiration;
+            try {
+                expiration = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
+            } catch (Exception e) {
+                log.info("Expiration Error", e);
+                return false;
+            }
             Long now = System.currentTimeMillis();
-            if(expiration.getTime() - now > 0) {
+            if (expiration.getTime() - now > 0) {
                 return true;
             }
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
@@ -87,7 +91,12 @@ public class TokenUtils {
             log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
+        } catch (SignatureException e){
+            log.info("JWT signature does not match");
+        } catch (Exception e){
+            log.info("EXCEPTION");
         }
+
         return false;
     }
 
@@ -95,11 +104,11 @@ public class TokenUtils {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        UserEntity userByEmail = userRepository.findByUserId(Jwts.parser().setSigningKey(secretKey)
+        UserEntity userEntity = userRepository.findByUserId(Jwts.parser().setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody().getSubject());
 
-        return mapper.map(userByEmail, ResponseUser.class);
+        return mapper.map(userEntity, ResponseUser.class);
     }
 
     public Long getExpiration(String token){

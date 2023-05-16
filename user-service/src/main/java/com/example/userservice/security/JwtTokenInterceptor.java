@@ -1,10 +1,10 @@
-package com.example.deliveryservice.security;
+package com.example.userservice.security;
 
-import com.example.deliveryservice.StatusEnum;
-import com.example.deliveryservice.constants.AuthConstants;
-import com.example.deliveryservice.utils.CookieUtils;
-import com.example.deliveryservice.utils.TokenUtils;
-import com.example.deliveryservice.vo.response.ResponseData;
+import com.example.userservice.StatusEnum;
+import com.example.userservice.constants.AuthConstants;
+import com.example.userservice.utils.CookieUtils;
+import com.example.userservice.utils.TokenUtils;
+import com.example.userservice.vo.response.ResponseData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

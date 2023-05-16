@@ -1,4 +1,4 @@
-package com.example.deliveryservice.utils;
+package com.example.userservice.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
