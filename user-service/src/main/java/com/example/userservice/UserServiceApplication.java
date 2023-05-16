@@ -18,14 +18,4 @@ public class UserServiceApplication {
 		SpringApplication.run(UserServiceApplication.class, args);
 	}
 
-	@Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder(){
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
-	@LoadBalanced
-	public RestTemplate getRestTemplate(){
-		return new RestTemplate();
-	}
 }

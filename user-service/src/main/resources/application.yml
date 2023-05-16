@@ -16,7 +16,7 @@ spring:
     # url: jdbc:mysql://exqress-rds.ctxktr2nwban.ap-northeast-2.rds.amazonaws.com:3306/exqressdb/useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     url: jdbc:h2:tcp://localhost/~/user-service
     username: sa
-    password:
+    password: 1234
     driver-class-name: org.h2.Driver
   h2:
     console:
