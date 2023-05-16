@@ -1,12 +1,11 @@
-package com.example.deliveryservice.config;
+package com.example.userservice.config;
 
-import com.example.deliveryservice.security.JwtTokenInterceptor;
-import com.example.deliveryservice.utils.CookieUtils;
-import com.example.deliveryservice.utils.TokenUtils;
+import com.example.userservice.security.JwtTokenInterceptor;
+import com.example.userservice.utils.CookieUtils;
+import com.example.userservice.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -21,7 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtTokenInterceptor())
-                .excludePathPatterns("/deliverys", "/login", "/error/**", "/reissue")
+                .excludePathPatterns("/users", "/login", "/error/**", "/reissue")
                 .addPathPatterns("/**");
     }
 

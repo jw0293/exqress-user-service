@@ -1,14 +1,19 @@
 package com.example.userservice.service;
 
 import com.example.userservice.StatusEnum;
+import com.example.userservice.constants.AuthConstants;
 import com.example.userservice.dto.TokenInfo;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.entity.UserEntity;
 import com.example.userservice.repository.UserRepository;
+import com.example.userservice.utils.CookieUtils;
 import com.example.userservice.utils.TokenUtils;
-import com.example.userservice.vo.request.RequestToken;
+import com.example.userservice.vo.request.RequestLogin;
 import com.example.userservice.vo.response.ResponseData;
-import com.example.userservice.vo.response.ResponseUser;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -17,12 +22,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -35,10 +40,19 @@ public class UserServiceImpl implements UserService{
 
     private final Environment env;
     private final TokenUtils tokenUtils;
-    private final RedisTemplate redisTemplate;
+    private final CookieUtils cookieUtils;
     private final UserRepository userRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     // private final DeliveryServiceClient deliveryServiceClient;
+
+    private ModelMapper mapper;
+
+    @PostConstruct
+    public void initMapper(){
+        mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -50,6 +64,49 @@ public class UserServiceImpl implements UserService{
         return new User(user.getEmail(), user.getEncryptedPwd(),
                 true, true, true, true,
                 new ArrayList<>());
+    }
+
+    @Override
+    public ResponseEntity<ResponseData> login(HttpServletRequest request, HttpServletResponse response, RequestLogin login) {
+        UserEntity entity = userRepository.findByEmail(login.getEmail());
+        if(entity == null){
+            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "존재하지 않는 배송기사 이메일입니다.", "", ""), HttpStatus.BAD_REQUEST);
+        }
+        // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
+        // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
+        UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
+
+        // 2. 실제 검증 (사용자 비밀번호 체크)이 이루어지는 부분
+        // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
+        //Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        UserDetails userDetails = loadUserByUsername(authenticationToken.getName());
+        if(userDetails == null){
+            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "존재하지 않는 배송기사 이메일입니다.", "", ""), HttpStatus.BAD_REQUEST);
+        }
+
+        if(!bCryptPasswordEncoder.matches(login.getPassword(), entity.getEncryptedPwd())) {
+            log.error("비밀번호오류");
+            return new ResponseEntity<>(new ResponseData(StatusEnum.Unauthorized.getStatusCode(), "비밀번호 오류입니다.", "", ""), HttpStatus.UNAUTHORIZED);
+        }
+
+        // 3. 인증 정보를 기반으로 JWT 토큰 생성
+        TokenInfo tokenInfo = tokenUtils.generateToken(entity.getUserId());
+
+        log.info("Access : {}", tokenInfo.getAccessToken());
+        log.info("Refresh :{}", tokenInfo.getRefreshToken());
+
+        Cookie cookie = cookieUtils.createCookie(AuthConstants.REFRESH_HEADER, tokenInfo.getRefreshToken());
+        response.addCookie(cookie);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        log.info("Cookie에 담김");
+
+        // 4. RefreshToken Redis 저장 (expirationTime 설정을 통해 자동 삭제 처리)
+        redisTemplate.opsForValue()
+                .set("RT:" + entity.getUserId(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
+
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "로그인 성공", "", tokenInfo.getAccessToken()), HttpStatus.OK);
     }
 
     @Override
@@ -110,71 +167,5 @@ public class UserServiceImpl implements UserService{
             return false;
         }
         return true;
-    }
-
-    @Override
-    public ResponseEntity<ResponseData> reissue(RequestToken tokenInfo) {
-        // 1. Refresh Token 검증
-        if (!tokenUtils.isValidToken(tokenInfo.getRefreshToken())) {
-            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "Refresh 토큰이 유효하지 않습니다.", ""), HttpStatus.BAD_REQUEST);
-        }
-
-        log.info("유효한 토큰 확인");
-        // 2. Access Token 에서 User email 을 가져옵니다.
-        ResponseUser authenticationUser = tokenUtils.getAuthentication(tokenInfo.getAccessToken());
-
-        log.info("AuthUser Name : {}", authenticationUser.getName());
-        log.info("AuthUser Email : {}", authenticationUser.getEmail());
-        log.info("AuthUser UserId : {}", authenticationUser.getUserId());
-
-        // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
-        String refreshToken = (String) redisTemplate.opsForValue().get("RT:" + authenticationUser.getUserId());
-        // (추가) 로그아웃되어 Redis 에 RefreshToken 이 존재하지 않는 경우 처리
-        if(ObjectUtils.isEmpty(refreshToken)) {
-            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "잘못된 요청입니다.", ""), HttpStatus.BAD_REQUEST);
-        }
-        if(!refreshToken.equals(tokenInfo.getRefreshToken())) {
-            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "Refresh 토큰이 일치하지 않습니다.", ""), HttpStatus.BAD_REQUEST);
-        }
-
-        // 4. 새로운 토큰 생성
-        TokenInfo newTokenInfo = tokenUtils.generateToken(authenticationUser.getUserId());
-        log.info("New Token Success !");
-
-        // 5. RefreshToken Redis 업데이트
-        redisTemplate.opsForValue()
-                .set("RT:" + authenticationUser.getUserId(), newTokenInfo.getRefreshToken(), newTokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
-
-        log.info("New 토큰 반환");
-        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "Token 정보가 갱신되었습니다.", newTokenInfo), HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<ResponseData> logout(RequestToken logout) {
-        // 1. Access Token 검증
-        if (!tokenUtils.isValidToken(logout.getAccessToken())) {
-            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "잘못된 요청입니다.", ""), HttpStatus.BAD_REQUEST);
-        }
-        log.info("유효한 토큰 확인");
-
-        // 2. Access Token 에서 User email 을 가져옵니다.
-        ResponseUser authentication = tokenUtils.getAuthentication(logout.getAccessToken());
-
-        log.info("AuthUser Name : {}", authentication.getName());
-        log.info("AuthUser Email : {}", authentication.getEmail());
-        log.info("AuthUser UserId : {}", authentication.getUserId());
-
-        // 3. Redis 에서 해당 User ID로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
-        if (redisTemplate.opsForValue().get("RT:" + authentication.getUserId()) != null) {
-            // Refresh Token 삭제
-            redisTemplate.delete("RT:" + authentication.getUserId());
-        }
-
-        // 4. 해당 Access Token 유효시간 가지고 와서 BlackList 로 저장하기
-        Long expiration = tokenUtils.getExpiration(logout.getAccessToken());
-        redisTemplate.opsForValue()
-                .set(logout.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
-
-        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "로그아웃 되었습니다.", ""), HttpStatus.OK);
     }
 }
