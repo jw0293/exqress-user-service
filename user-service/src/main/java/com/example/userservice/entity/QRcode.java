@@ -1,5 +1,6 @@
-package com.example.deliveryservice.entity;
+package com.example.userservice.entity;
 
+import com.rabbitmq.client.Address;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,9 +22,10 @@ public class QRcode {
     @Column(nullable = false)
     private String productName;
 
+    @Column(nullable = false)
+    private String invoiceNo;
+
     @Embedded
     private Address address;
 
-    @OneToOne(mappedBy = "qRcode")
-    private DeliveryItem deliveryItem;
 }

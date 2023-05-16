@@ -1,2 +1,4 @@
-package com.example.userservice.entity.state;public class MiddleStateInfo {
+package com.example.userservice.entity.state;
+
+public class MiddleStateInfo {
 }
