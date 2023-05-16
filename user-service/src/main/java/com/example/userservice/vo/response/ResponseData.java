@@ -12,4 +12,5 @@ public class ResponseData {
     private String status;
     private String message;
     private Object data;
+    private String accessToken;
 }
