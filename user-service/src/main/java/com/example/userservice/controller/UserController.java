@@ -5,11 +5,17 @@ import com.example.userservice.dto.UserDto;
 import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserServiceImpl;
 import com.example.userservice.vo.request.RequestLogin;
+import com.example.userservice.vo.request.RequestQRcode;
 import com.example.userservice.vo.request.RequestToken;
-import com.example.userservice.vo.response.Greeting;
+import com.example.userservice.vo.response.*;
 import com.example.userservice.vo.request.RequestUser;
-import com.example.userservice.vo.response.ResponseData;
-import com.example.userservice.vo.response.ResponseUser;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +38,13 @@ public class UserController {
     private final UserServiceImpl userService;
     private final TokenServiceImpl tokenService;
 
-
-    @PostMapping("/users")
+    @Operation(summary = "사용자 회원가입", description = "사용자가 회원가입을 시도합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
+    })
+    @PostMapping("/signUp")
     public ResponseEntity<ResponseData> createUser(@RequestBody RequestUser user){
         if(userService.isDuplicated(user.getEmail())){
             return new ResponseEntity<>(new ResponseData(StatusEnum.EXISTED.getStatusCode(), "이미 존재하는 회원입니다.", "", ""), HttpStatus.CONFLICT);
@@ -53,21 +64,50 @@ public class UserController {
         return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원가입 성공", responseUser, ""), HttpStatus.OK);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody RequestLogin login, HttpServletRequest request, HttpServletResponse response){
-        ResponseEntity<ResponseData> responseData = userService.login(request, response, login);
+    @Operation(summary = "사용자 물품 조회", description = "사용자가 주문한 물품을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
+    })
+    @GetMapping("/user/parcels")
+    public ResponseEntity<ResponseData> getQRInfoList(HttpServletRequest request){
+        String userId = userService.getUserIdThroughRequest(request);
+        return userService.getQRList(userId);
+    }
 
-        return responseData;
+    @Operation(summary = "사용자 로그인", description = "사용자가 로그인을 시도합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
+    })
+    @PostMapping("/signIn")
+    public ResponseEntity<?> login(@RequestBody RequestLogin login, HttpServletRequest request, HttpServletResponse response){
+        return userService.login(request, response, login);
     }
 
 
+    @Operation(summary = "토큰 재발급", description = "Refresh Token을 이용하여 Access, Refresh 토큰을 재발급합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
+            @ApiResponse(responseCode = "401", description = "인가 기능이 확인되지 않은 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
+    })
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
-
         return tokenService.reissue(request, response);
     }
 
-    @PostMapping("/logouts")
+    @Operation(summary = "사용자 로그아웃", description = "사용자가 로그아웃을 시도합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
+            @ApiResponse(responseCode = "401", description = "인가 기능이 확인되지 않은 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
+    })
+    @PostMapping("/signOut")
     public ResponseEntity<?> logout(@RequestBody RequestToken logoutToken){
         log.info("Logout accessToken : {}", logoutToken.getAccessToken());
         log.info("Logout refreshToken : {}", logoutToken.getRefreshToken());
