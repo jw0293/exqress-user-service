@@ -1,48 +1,51 @@
-//package com.example.userservice.messagequeue;
-//
-//import com.example.userservice.entity.QRinfo;
-//import com.example.userservice.entity.UserEntity;
-//import com.example.userservice.repository.QRinfoRepository;
-//import com.example.userservice.repository.UserRepository;
-//import com.example.userservice.kafkaDto.QRdto;
-//import com.fasterxml.jackson.core.JsonProcessingException;
-//import com.fasterxml.jackson.core.type.TypeReference;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import jakarta.annotation.PostConstruct;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.modelmapper.ModelMapper;
-//import org.modelmapper.convention.MatchingStrategies;
-//import org.springframework.kafka.annotation.KafkaListener;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.HashMap;
-//import java.util.Map;
-//
-//@Slf4j
-//@Service
-//@RequiredArgsConstructor
-//public class KafkaConsumer {
-//
-//    private ModelMapper modelMapper;
-//    private final UserRepository userRepository;
-//    private final QRinfoRepository qRinfoRepository;
-//
-//    @PostConstruct
-//    public void initMapper(){
-//        modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//    }
-//
-//
-//    @KafkaListener(topics = "UserMapItem")
+package com.example.userservice.messagequeue;
+
+import com.example.userservice.entity.QRinfo;
+import com.example.userservice.entity.UserEntity;
+import com.example.userservice.entity.state.FirstStateInfo;
+import com.example.userservice.kafkaDto.DeliveryInfoWithQRid;
+import com.example.userservice.repository.QRinfoRepository;
+import com.example.userservice.repository.UserRepository;
+import com.example.userservice.kafkaDto.QRdto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class KafkaConsumer {
+
+    private ModelMapper modelMapper;
+    private ObjectMapper objectMapper;
+    private final UserRepository userRepository;
+    private final QRinfoRepository qRinfoRepository;
+
+    @PostConstruct
+    public void initMapper(){
+        objectMapper = new ObjectMapper();
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    }
+
+
+//    @KafkaListener(topics = "TrackingInfoId")
 //    public void updateTrackingInfo(String kafkaMessage){
 //        log.info("Kafka Message: -> " + kafkaMessage);
 //
 //        Map<Object, Object> map = new HashMap<>();
-//        ObjectMapper mapper = new ObjectMapper();
 //        try{
-//            map = mapper.readValue(kafkaMessage, new TypeReference<Map<Object, Object>>() {});
+//            map = modelMapper.readValue(kafkaMessage, new TypeReference<Map<Object, Object>>() {});
 //            /*
 //            map으로 Admin에서 전송한 정보를 추출해야함
 //            ------------------
@@ -68,13 +71,37 @@
 //            kafkaQRInfo.connectUser(user);
 //        }
 //    }
-//
-//    public QRdto getQrDto(Map<Object, Object> map){
-//        QRdto qRdto = new QRdto();
-//        qRdto.setQrId((String) map.get("qrId"));
-//        qRdto.setInvoiceNo((String) map.get("invoiceNo"));
-//        qRdto.setProductName((String) map.get("productName"));
-//
-//        return qRdto;
-//    }
-//}
+
+    @KafkaListener(topics = "qr_topic")
+    public void connectDelivery(String kafkaMessage){
+        log.info("Get KafkaListener :" + kafkaMessage);
+        Map<Object, Object> map = new HashMap<>();
+        try{
+            map = objectMapper.readValue(kafkaMessage, new TypeReference<Map<Object, Object>>() {});
+        } catch (JsonProcessingException ex){
+            ex.printStackTrace();
+        }
+        FirstStateInfo firstStateInfo = getFirstStateInfo(map);
+        QRinfo qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
+        qrInfo.setFirstStateInfo(firstStateInfo);
+        qRinfoRepository.save(qrInfo);
+    }
+
+    private FirstStateInfo getFirstStateInfo(Map<Object, Object> map){
+        FirstStateInfo firstStateInfo = new FirstStateInfo();
+        firstStateInfo.setDeliveryName((String) map.get("deliveryName"));
+        firstStateInfo.setDeliveryPhoneNumber((String) map.get("deliveryPhoneNumber"));
+        firstStateInfo.setCurState((String) map.get("state"));
+
+        return firstStateInfo;
+    }
+
+    public QRdto getQrDto(Map<Object, Object> map){
+        QRdto qRdto = new QRdto();
+        qRdto.setQrId((String) map.get("qrId"));
+        qRdto.setInvoiceNo((String) map.get("invoiceNo"));
+        qRdto.setProductName((String) map.get("productName"));
+
+        return qRdto;
+    }
+}

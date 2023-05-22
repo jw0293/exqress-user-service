@@ -1,5 +1,6 @@
 package com.example.userservice.entity;
 
+import com.example.userservice.entity.state.FirstStateInfo;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
@@ -29,6 +30,10 @@ public class QRinfo {
     @ManyToOne
     @JoinColumn(name = "user_entity_id")
     private UserEntity userEntity;
+
+    @OneToOne
+    @JoinColumn(name = "first_state_id")
+    private FirstStateInfo firstStateInfo;
 
     public void connectUser(UserEntity user){
         this.userEntity = user;
