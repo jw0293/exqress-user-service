@@ -12,4 +12,5 @@ public interface TokenService {
     String createToken(UserDto userDto);
     ResponseEntity<ResponseData> logout(RequestToken tokenInfo);
     ResponseEntity<ResponseData> reissue(HttpServletRequest request, HttpServletResponse response);
+
 }

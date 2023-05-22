@@ -4,6 +4,7 @@ server:
 spring:
   application:
     name: capstone
+  url: http://http://k8s-default-backdeli-ecf39846be-744275535.ap-northeast-2.elb.amazonaws.com/
 #  rabbitmq:
 #    host: 127.0.0.1
 #    port: 5672
@@ -11,18 +12,17 @@ spring:
 #    password: guest
   redis:
     port: 6379
-    host: 127.0.0.1
+    host: http://my-redis.redis-ns.svc.cluster.local
   datasource:
-    # url: jdbc:mysql://exqress-rds.ctxktr2nwban.ap-northeast-2.rds.amazonaws.com:3306/exqressdb/useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    url: jdbc:h2:tcp://localhost/~/user-service
-    username: sa
-    password: 1234
-    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://exqress-db.ctxktr2nwban.ap-northeast-2.rds.amazonaws.com:3306/delivery?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: qwer1234
+#  h2:
+#    console:
+#      enabled: true
+#      settings:
+#        web-allow-others: true
 
   jpa:
     show-sql: true

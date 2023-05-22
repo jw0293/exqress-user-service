@@ -3,12 +3,15 @@ package com.example.userservice.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
-@Table(name = "users")
+@Table
 public class UserEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_entity_id")
     private Long id;
 
     @Column(nullable = false, length = 50, unique = true)
@@ -22,4 +25,14 @@ public class UserEntity {
 
     @Column(nullable = false)
     private String encryptedPwd;
+
+    @Column(nullable = false)
+    private String phoneNumber;
+
+    @OneToMany(mappedBy = "userEntity")
+    private List<QRinfo> qRinfoList;
+
+    public void addQRinfoList(QRinfo qRinfo){
+        this.qRinfoList.add(qRinfo);
+    }
 }

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "delivery-service")
-public interface DeliveryServiceClient {
-
-    @GetMapping("/delivery-service/{userId}/items")
-    List<ResponseParcel> getItems(@PathVariable String userId);
-}
+//@FeignClient(name = "delivery-service")
+//public interface DeliveryServiceClient {
+//
+//    @GetMapping("/delivery-service/{userId}/items")
+//    List<ResponseParcel> getItems(@PathVariable String userId);
+//}

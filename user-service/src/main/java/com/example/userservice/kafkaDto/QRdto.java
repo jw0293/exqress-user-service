@@ -1,4 +1,4 @@
-package com.example.userservice.vo.kafkaDto;
+package com.example.userservice.kafkaDto;
 
 import lombok.Data;
 
