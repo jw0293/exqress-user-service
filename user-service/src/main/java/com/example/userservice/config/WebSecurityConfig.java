@@ -49,7 +49,7 @@ public class WebSecurityConfig {
                 .formLogin().disable()
                 .addFilter(corsFilter)
                 .csrf().ignoringRequestMatchers("/h2-console/**").disable()
-                .authorizeHttpRequests().requestMatchers("/h2-console/**").permitAll();
+                .authorizeHttpRequests().requestMatchers("/h2-console/**", "/","/swagger-ui/**", "/v3/api-docs/**").permitAll();
 
         http.
                 authorizeHttpRequests()
