@@ -1,10 +1,10 @@
 server:
   port: 4002
+  url: http://k8s-default-backuser-6b57e68a13-2063567931.ap-northeast-2.elb.amazonaws.com/
 
 spring:
   application:
     name: capstone
-  url: http://http://k8s-default-backuser-6b57e68a13-2063567931.ap-northeast-2.elb.amazonaws.com/
 #  rabbitmq:
 #    host: 127.0.0.1
 #    port: 5672
@@ -42,3 +42,18 @@ token:
   access_expiration_time: 86400
   refresh_expiration_time: 8640000
   secret: exqress-token
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  paths-to-match:
+    - /**
