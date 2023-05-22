@@ -4,7 +4,7 @@ server:
 spring:
   application:
     name: capstone
-  url: http://http://k8s-default-backdeli-ecf39846be-744275535.ap-northeast-2.elb.amazonaws.com/
+  url: http://http://k8s-default-backuser-6b57e68a13-2063567931.ap-northeast-2.elb.amazonaws.com/
 #  rabbitmq:
 #    host: 127.0.0.1
 #    port: 5672
