@@ -16,7 +16,6 @@ import com.example.userservice.vo.response.ResponseData;
 import com.example.userservice.vo.response.ResponseParcel;
 import com.example.userservice.vo.response.ResponseQRcodeInto;
 import com.example.userservice.vo.response.Result;
-import feign.Response;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
