@@ -5,11 +5,6 @@ server:
 spring:
   application:
     name: capstone
-#  rabbitmq:
-#    host: 127.0.0.1
-#    port: 5672
-#    username: guest
-#    password: guest
   redis:
     port: 6379
     host: http://my-redis.redis-ns.svc.cluster.local

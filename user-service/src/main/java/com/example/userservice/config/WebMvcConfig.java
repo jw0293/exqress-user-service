@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -17,6 +18,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final TokenUtils tokenUtils;
     private final CookieUtils cookieUtils;
+    private final RedisTemplate redisTemplate;
 
     @Value("${spring.url}")
     private static String URI;
@@ -41,6 +43,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Bean
     public JwtTokenInterceptor jwtTokenInterceptor(){
-        return new JwtTokenInterceptor(tokenUtils, cookieUtils);
+        return new JwtTokenInterceptor(tokenUtils, cookieUtils, redisTemplate);
     }
 }

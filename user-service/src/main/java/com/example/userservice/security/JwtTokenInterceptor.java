@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -20,6 +21,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
     private final TokenUtils tokenUtils;
     private final CookieUtils cookieUtils;
+    private final RedisTemplate redisTemplate;
     private static final String ERROR_MESSAGE = "유효하지 않은 JWT입니다.";
 
     @Override
@@ -36,7 +38,17 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         }
 
         if(StringUtils.hasText(header) && header.startsWith(AuthConstants.TOKEN_TYPE)){
-            String bearerToken = header.substring(7);
+            String bearerToken = header.substring(AuthConstants.TOKEN_TYPE.length());
+            log.info(bearerToken);
+            // 로그아웃 로직 추가
+            String blackToken = (String) redisTemplate.opsForValue().get(bearerToken);
+            log.info("LogOut BlackToken : {}", blackToken);
+            if(StringUtils.hasText(blackToken)){
+                response.setStatus(200);
+                response.getWriter().write(mapper.writeValueAsString(new ResponseData(StatusEnum.OK.getStatusCode(), "로그아웃 된 토큰입니다.", "", "")));
+                return false;
+            }
+
             if(tokenUtils.isValidToken(bearerToken)) return true;
         }
 
