@@ -7,7 +7,7 @@ spring:
     name: capstone
   redis:
     port: 6379
-    host: http://my-redis.redis-ns.svc.cluster.local
+      host: a403acea7ffb044a3a05637eede69186-65650957.ap-northeast-2.elb.amazonaws.com
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://exqress-db.ctxktr2nwban.ap-northeast-2.rds.amazonaws.com:3306/delivery?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
