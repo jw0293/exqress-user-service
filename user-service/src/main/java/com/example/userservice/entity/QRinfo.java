@@ -1,6 +1,5 @@
 package com.example.userservice.entity;
 
-import com.example.userservice.entity.state.FirstStateInfo;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;

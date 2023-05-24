@@ -12,6 +12,7 @@ import com.example.userservice.utils.CookieUtils;
 import com.example.userservice.utils.TokenUtils;
 import com.example.userservice.vo.request.RequestLogin;
 import com.example.userservice.vo.request.RequestQRcode;
+import com.example.userservice.vo.request.RequestTemp;
 import com.example.userservice.vo.response.ResponseData;
 import com.example.userservice.vo.response.ResponseParcel;
 import com.example.userservice.vo.response.ResponseQRcodeInto;
@@ -22,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.core.env.Environment;
@@ -171,6 +173,20 @@ public class UserServiceImpl implements UserService{
         responseQRcodeInto.setReceiverName(user.getName());
         responseQRcodeInto.setPhoneNumber(user.getPhoneNumber());
         return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원이 주문한 상품이 배송 완료되었습니다.",  responseQRcodeInto, ""), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ResponseData> assignQRId(String userId, RequestTemp requestTemp){
+        UserEntity user = userRepository.findByUserId(userId);
+        if(user == null) {
+            return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 회원ID입니다. ", "", ""), HttpStatus.NOT_FOUND);
+        }
+        QRinfo info = mapper.map(requestTemp, QRinfo.class);
+        info.connectUser(user);
+        user.addQRinfoList(info);
+
+        qRinfoRepository.save(info);
+        userRepository.save(user);
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "QR정보 저장이 완료되었습니다.",  requestTemp, ""), HttpStatus.OK);
     }
 
     @Override

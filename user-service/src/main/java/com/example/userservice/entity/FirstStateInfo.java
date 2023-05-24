@@ -1,17 +1,16 @@
-package com.example.userservice.entity.state;
+package com.example.userservice.entity;
 
-import com.example.userservice.entity.QRinfo;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 
 @Data
 @Entity
-@Table
+@Table(name = "FIRST_STATE_INFO")
 public class FirstStateInfo {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "first_stat_id")
+    @Column(name = "first_state_id")
     private Long id;
 
     @Column(nullable = false)
@@ -19,7 +18,6 @@ public class FirstStateInfo {
     @Column(nullable = false)
     private String deliveryPhoneNumber;
     @Column(nullable = false)
-    @ColumnDefault(value = "배송 시작")
     private String curState;
 
     @OneToOne(mappedBy = "firstStateInfo")

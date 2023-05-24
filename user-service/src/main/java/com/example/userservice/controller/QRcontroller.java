@@ -2,6 +2,7 @@ package com.example.userservice.controller;
 
 import com.example.userservice.service.UserServiceImpl;
 import com.example.userservice.vo.request.RequestQRcode;
+import com.example.userservice.vo.request.RequestTemp;
 import com.example.userservice.vo.response.ResponseData;
 import com.example.userservice.vo.response.ResponseError;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "QR 컨트롤러", description = "QR코x API입니다.")
+@Tag(name = "QR 컨트롤러", description = "QR코드 API입니다.")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -39,5 +40,10 @@ public class QRcontroller {
     public ResponseEntity<ResponseData> scanQR(HttpServletRequest request, @RequestBody RequestQRcode qrCode){
         String userId = userService.getUserIdThroughRequest(request);
         return userService.scanQRcode(userId, qrCode);
+    }
+
+    @PostMapping("/assign")
+    public ResponseEntity<ResponseData> assignQRcode(@RequestBody RequestTemp temp){
+        return userService.assignQRId(temp.getUserId(), temp);
     }
 }

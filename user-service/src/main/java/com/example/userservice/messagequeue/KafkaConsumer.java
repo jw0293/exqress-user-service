@@ -1,9 +1,8 @@
 package com.example.userservice.messagequeue;
 
 import com.example.userservice.entity.QRinfo;
-import com.example.userservice.entity.UserEntity;
-import com.example.userservice.entity.state.FirstStateInfo;
-import com.example.userservice.kafkaDto.DeliveryInfoWithQRid;
+import com.example.userservice.entity.FirstStateInfo;
+import com.example.userservice.repository.FirstStateInfoRepository;
 import com.example.userservice.repository.QRinfoRepository;
 import com.example.userservice.repository.UserRepository;
 import com.example.userservice.kafkaDto.QRdto;
@@ -30,6 +29,7 @@ public class KafkaConsumer {
     private ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final QRinfoRepository qRinfoRepository;
+    private final FirstStateInfoRepository firstStateInfoRepository;
 
     @PostConstruct
     public void initMapper(){
@@ -84,11 +84,16 @@ public class KafkaConsumer {
         FirstStateInfo firstStateInfo = getFirstStateInfo(map);
         QRinfo qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
         qrInfo.setFirstStateInfo(firstStateInfo);
+        firstStateInfo.setQRinfo(qrInfo);
+        firstStateInfoRepository.save(firstStateInfo);
         qRinfoRepository.save(qrInfo);
     }
 
     private FirstStateInfo getFirstStateInfo(Map<Object, Object> map){
         FirstStateInfo firstStateInfo = new FirstStateInfo();
+        log.info("State Delivery Name : {}", (String) map.get("deliveryName"));
+        log.info("State Delivery Phone Number : {}", (String) map.get("deliveryPhoneNumber"));
+        log.info("State Delivery State : {}", (String) map.get("state"));
         firstStateInfo.setDeliveryName((String) map.get("deliveryName"));
         firstStateInfo.setDeliveryPhoneNumber((String) map.get("deliveryPhoneNumber"));
         firstStateInfo.setCurState((String) map.get("state"));
