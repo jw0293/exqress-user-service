@@ -175,6 +175,19 @@ public class UserServiceImpl implements UserService{
         return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원이 주문한 상품이 배송 완료되었습니다.",  responseQRcodeInto, ""), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<ResponseData> clearPrivateInformation(String userId, String qrId) {
+        QRinfo qrInfo = qRinfoRepository.findByQrId(qrId);
+        if(qrInfo == null) {
+            return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 QR ID입니다. ", "", ""), HttpStatus.NOT_FOUND);
+        }
+        if(!qrInfo.getUserEntity().getUserId().equals(userId)){
+            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "로그인 한 회원이 주문한 상품이 아닙니다.", "", ""), HttpStatus.BAD_REQUEST);
+        }
+        qRinfoRepository.delete(qrInfo);
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원이 주문한 상품의 정보 파기가 완료되었습니다.",  "", ""), HttpStatus.OK);
+    }
+
     public ResponseEntity<ResponseData> assignQRId(String userId, RequestTemp requestTemp){
         UserEntity user = userRepository.findByUserId(userId);
         if(user == null) {

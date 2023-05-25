@@ -115,4 +115,17 @@ public class UserController {
         return tokenService.logout(logoutToken);
     }
 
+    @Operation(summary = "사용자 개인정보 파기", description = "사용자가 자신의 개인정보를 파기합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "개인정보 파기 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
+            @ApiResponse(responseCode = "401", description = "인가 기능이 확인되지 않은 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
+    })
+    @PostMapping("/clear")
+    public ResponseEntity<?> clearPrivateInformation(HttpServletRequest request, @RequestBody RequestQRcode requestQRcode){
+        String userId = userService.getUserIdThroughRequest(request);
+        return userService.clearPrivateInformation(userId, requestQRcode.getQrId());
+    }
+
 }

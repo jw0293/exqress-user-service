@@ -20,4 +20,5 @@ public interface UserService extends UserDetailsService{
     ResponseEntity<ResponseData> scanQRcode(String userId, RequestQRcode qrCode);
 
     ResponseEntity<ResponseData> getQRList(String userId);
+    ResponseEntity<ResponseData> clearPrivateInformation(String userId, String qrId);
 }
