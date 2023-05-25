@@ -203,6 +203,11 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public ResponseEntity<ResponseData> requestReturnParcel(String qrId) {
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "반송 요청이 완료되었습니다.",  "", ""), HttpStatus.OK);
+    }
+
+    @Override
     public boolean isDuplicated(String email) {
         return userRepository.findByEmail(email) != null;
     }

@@ -9,9 +9,7 @@ import com.example.userservice.vo.request.RequestQRcode;
 import com.example.userservice.vo.request.RequestToken;
 import com.example.userservice.vo.response.*;
 import com.example.userservice.vo.request.RequestUser;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,9 +29,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/")
 public class UserController {
-
-    private final Environment env;
-    private final Greeting greeting;
     private final UserServiceImpl userService;
     private final TokenServiceImpl tokenService;
 
@@ -128,4 +122,14 @@ public class UserController {
         return userService.clearPrivateInformation(userId, requestQRcode.getQrId());
     }
 
+    @Operation(summary = "물품 반송 요청", description = "사용자가 물품 반송 요청합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "물품 반송 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
+            @ApiResponse(responseCode = "401", description = "인가 기능이 확인되지 않은 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
+    })
+    public ResponseEntity<?> requestReturnParcel(@RequestBody RequestQRcode requestQRcode){
+        return userService.requestReturnParcel(requestQRcode.getQrId());
+    }
 }
