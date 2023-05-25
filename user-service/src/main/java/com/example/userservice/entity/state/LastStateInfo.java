@@ -1,4 +1,25 @@
 package com.example.userservice.entity.state;
 
+import com.example.userservice.entity.QRinfo;
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
+@Table
+@Entity
 public class LastStateInfo {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "last_state_id")
+    private Long id;
+
+    @Column(nullable = false)
+    private String deliveryName;
+    @Column(nullable = false)
+    private String deliveryPhoneNumber;
+    @Column(nullable = false)
+    private String curState;
+
+    @OneToOne(mappedBy = "lastStateInfo")
+    private QRinfo qRinfo;
 }

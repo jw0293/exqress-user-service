@@ -1,15 +1,15 @@
-package com.example.userservice.entity;
+package com.example.userservice.entity.state;
 
+import com.example.userservice.entity.QRinfo;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.ColumnDefault;
 
-@Data
 @Entity
-@Table(name = "FIRST_STATE_INFO")
+@Data
+@Table
 public class FirstStateInfo {
-
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "first_state_id")
     private Long id;
 
