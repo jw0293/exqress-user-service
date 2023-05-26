@@ -7,22 +7,22 @@ spring:
     name: capstone
   redis:
     port: 6379
-    #host: my-redis.default.svc.cluster.local
-    host: 127.0.0.1
+    host: my-redis.default.svc.cluster.local
+    #host: 127.0.0.1
   h2:
     console:
       enabled: true
       settings:
         web-allow-others: true
   datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://exqress-db.ctxktr2nwban.ap-northeast-2.rds.amazonaws.com:3306/delivery?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#    username: admin
-#    password: qwer1234
-    url: jdbc:h2:mem:testdb2
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://exqress-db.ctxktr2nwban.ap-northeast-2.rds.amazonaws.com:3306/delivery?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: qwer1234
+#    url: jdbc:h2:mem:testdb2
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
 
   jpa:
     show-sql: true
