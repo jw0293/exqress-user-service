@@ -21,8 +21,8 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory(){
         return new LettuceConnectionFactory(
-                redisProperties.getHost(),
-                redisProperties.getPort()
+                env.getProperty("spring.redis.host"),
+                Integer.parseInt(env.getProperty("spring.redis.port"))
         );
     }
 
