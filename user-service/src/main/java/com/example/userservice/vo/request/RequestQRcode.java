@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class RequestQRcode {
 
-    @Schema(description = "QR ID", nullable = false, example = "dsjsdtkjdope4238genfj")
+    @Schema(description = "QR ID", nullable = false, example = "egjh14813fghasd")
     private String qrId;
 
 }

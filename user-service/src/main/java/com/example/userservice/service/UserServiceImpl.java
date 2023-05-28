@@ -4,9 +4,9 @@ import com.example.userservice.StatusEnum;
 import com.example.userservice.constants.AuthConstants;
 import com.example.userservice.dto.TokenInfo;
 import com.example.userservice.dto.UserDto;
-import com.example.userservice.entity.QRinfo;
+import com.example.userservice.entity.QRcode;
 import com.example.userservice.entity.UserEntity;
-import com.example.userservice.repository.QRinfoRepository;
+import com.example.userservice.repository.QRcodeRepository;
 import com.example.userservice.repository.UserRepository;
 import com.example.userservice.utils.CookieUtils;
 import com.example.userservice.utils.TokenUtils;
@@ -16,14 +16,12 @@ import com.example.userservice.vo.request.RequestTemp;
 import com.example.userservice.vo.response.ResponseData;
 import com.example.userservice.vo.response.ResponseParcel;
 import com.example.userservice.vo.response.ResponseQRcodeInto;
-import com.example.userservice.vo.response.Result;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.core.env.Environment;
@@ -39,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +50,7 @@ public class UserServiceImpl implements UserService{
     private final TokenUtils tokenUtils;
     private final CookieUtils cookieUtils;
     private final UserRepository userRepository;
-    private final QRinfoRepository qRinfoRepository;
+    private final QRcodeRepository qRinfoRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     // private final DeliveryServiceClient deliveryServiceClient;
@@ -97,6 +96,8 @@ public class UserServiceImpl implements UserService{
             return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "존재하지 않는 배송기사 이메일입니다.", "", ""), HttpStatus.BAD_REQUEST);
         }
 
+        log.info("login Pwd : {}", login.getPassword());
+        log.info("Entity Pwd : {}", entity.getEncryptedPwd());
         if(!bCryptPasswordEncoder.matches(login.getPassword(), entity.getEncryptedPwd())) {
             log.error("비밀번호오류");
             return new ResponseEntity<>(new ResponseData(StatusEnum.Unauthorized.getStatusCode(), "비밀번호 오류입니다.", "", ""), HttpStatus.UNAUTHORIZED);
@@ -139,12 +140,31 @@ public class UserServiceImpl implements UserService{
     @Override
     public ResponseEntity<ResponseData> getQRList(String userID) {
         UserEntity user = userRepository.findByUserId(userID);
-        List<QRinfo> qRinfoList = user.getQRinfoList();
+        List<QRcode> qRinfoList = user.getQRinfoList();
+        List<ResponseParcel> parcels = createResponseParcelList(user, qRinfoList);
+
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "사용자가 주문한 물품들입니다.",  parcels, ""), HttpStatus.OK);
+    }
+
+    private List<ResponseParcel> createResponseParcelList(UserEntity user, List<QRcode> qRinfoList){
         List<ResponseParcel> parcels = new ArrayList<>();
-        qRinfoList.forEach(v -> {
-            parcels.add(new ModelMapper().map(v, ResponseParcel.class));
-        });
-        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "사용자가 주문한 물품들입니다.", new Result(parcels.size(), parcels), ""), HttpStatus.OK);
+        for (QRcode qRinfo : qRinfoList) {
+            parcels.add(createResponseParcel(user, qRinfo));
+        }
+        return parcels;
+    }
+
+    private ResponseParcel createResponseParcel(UserEntity user, QRcode qRcode){
+        ResponseParcel responseParcel = new ResponseParcel();
+        responseParcel.setCreatedDate(qRcode.getCreatedAt().toString());
+        responseParcel.setInvoiceNo(qRcode.getInvoiceNo());
+        responseParcel.setReceiverName(user.getName());
+        if(qRcode.getLastStateInfo() == null) responseParcel.setIsComplete("false");
+        else responseParcel.setIsComplete(qRcode.getIsComplete());
+        responseParcel.setProductName(qRcode.getProductName());
+        responseParcel.setReceiverPhoneNumber(user.getPhoneNumber());
+
+        return responseParcel;
     }
 
     @Override
@@ -155,29 +175,35 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public ResponseEntity<ResponseData> scanQRcode(String userId, RequestQRcode qrCode) {
-        String qrId = qrCode.getQrId();
-        QRinfo qrInfo = qRinfoRepository.findByQrId(qrId);
+    public ResponseEntity<ResponseData> scanQRcode(String userId, RequestQRcode requestQRcode) {
+        QRcode qrInfo = qRinfoRepository.findByQrId(requestQRcode.getQrId());
+        log.info("Find QR ID : {}", requestQRcode.getQrId());
+        log.info("Find QRInfo : {}", qrInfo);
+        log.info("Befoe Find User ID : {}", userId);
         UserEntity user = userRepository.findByUserId(userId);
+        log.info("Find User ID : {}", user.getUserId());
         // 찾지 못한 경우 -> 반송 처리
         if(qrInfo == null) {
             return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 QR_ID입니다. 반송을 요청하십시오.", "", ""), HttpStatus.NOT_FOUND);
         }
 
+        log.info("QRInfo With Connect User : {}", qrInfo.getUserEntity().getUserId());
         // 사용자에게 할당된 물품이 아닐 경우
         if(!qrInfo.getUserEntity().getUserId().equals(user.getUserId())){
             return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "로그인 한 회원이 주문한 상품이 아닙니다.", "", ""), HttpStatus.BAD_REQUEST);
         }
 
-        ResponseQRcodeInto responseQRcodeInto = mapper.map(qrInfo, ResponseQRcodeInto.class);
-        responseQRcodeInto.setReceiverName(user.getName());
-        responseQRcodeInto.setPhoneNumber(user.getPhoneNumber());
-        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원이 주문한 상품이 배송 완료되었습니다.",  responseQRcodeInto, ""), HttpStatus.OK);
+        ResponseParcel responseParcel = createResponseParcel(user, qrInfo);
+        log.info("ResponseParcel :{}", responseParcel);
+//        ResponseQRcodeInto responseQRcodeInto = mapper.map(qrInfo, ResponseQRcodeInto.class);
+//        responseQRcodeInto.setReceiverName(user.getName());
+//        responseQRcodeInto.setPhoneNumber(user.getPhoneNumber());
+        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원이 주문한 상품이 배송 완료되었습니다.",  responseParcel, ""), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<ResponseData> clearPrivateInformation(String userId, String qrId) {
-        QRinfo qrInfo = qRinfoRepository.findByQrId(qrId);
+    public ResponseEntity<ResponseData> clearPrivateInformation(String userId, String invoiceNo) {
+        QRcode qrInfo = qRinfoRepository.findByInvoiceNo(invoiceNo);
         if(qrInfo == null) {
             return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 QR ID입니다. ", "", ""), HttpStatus.NOT_FOUND);
         }
@@ -193,7 +219,7 @@ public class UserServiceImpl implements UserService{
         if(user == null) {
             return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 회원ID입니다. ", "", ""), HttpStatus.NOT_FOUND);
         }
-        QRinfo info = mapper.map(requestTemp, QRinfo.class);
+        QRcode info = mapper.map(requestTemp, QRcode.class);
         info.connectUser(user);
         user.addQRinfoList(info);
 

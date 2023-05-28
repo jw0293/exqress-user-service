@@ -1,6 +1,6 @@
 package com.example.userservice.entity.state;
 
-import com.example.userservice.entity.QRinfo;
+import com.example.userservice.entity.QRcode;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,5 +21,5 @@ public class LastStateInfo {
     private String curState;
 
     @OneToOne(mappedBy = "lastStateInfo")
-    private QRinfo qRinfo;
+    private QRcode qRinfo;
 }

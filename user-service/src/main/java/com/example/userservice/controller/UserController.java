@@ -4,11 +4,8 @@ import com.example.userservice.StatusEnum;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserServiceImpl;
-import com.example.userservice.vo.request.RequestLogin;
-import com.example.userservice.vo.request.RequestQRcode;
-import com.example.userservice.vo.request.RequestToken;
+import com.example.userservice.vo.request.*;
 import com.example.userservice.vo.response.*;
-import com.example.userservice.vo.request.RequestUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -60,7 +57,7 @@ public class UserController {
 
     @Operation(summary = "사용자 물품 조회", description = "사용자가 주문한 물품을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
     })
@@ -117,9 +114,9 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
     })
     @PostMapping("/clear")
-    public ResponseEntity<?> clearPrivateInformation(HttpServletRequest request, @RequestBody RequestQRcode requestQRcode){
+    public ResponseEntity<?> clearPrivateInformation(HttpServletRequest request, @RequestBody RequestInvoiceNo requestInvoiceNo){
         String userId = userService.getUserIdThroughRequest(request);
-        return userService.clearPrivateInformation(userId, requestQRcode.getQrId());
+        return userService.clearPrivateInformation(userId, requestInvoiceNo.getInvoiceNo());
     }
 
     @Operation(summary = "물품 반송 요청", description = "사용자가 물품 반송 요청합니다.")

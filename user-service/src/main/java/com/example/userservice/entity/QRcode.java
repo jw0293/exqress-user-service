@@ -1,16 +1,21 @@
 package com.example.userservice.entity;
 
+import com.example.userservice.BaseTimeEntity;
 import com.example.userservice.entity.state.FirstStateInfo;
 import com.example.userservice.entity.state.LastStateInfo;
 import com.example.userservice.entity.state.MiddleStateInfo;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table
-public class QRinfo {
+public class QRcode extends BaseTimeEntity implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "qrinfo_id")
@@ -27,7 +32,7 @@ public class QRinfo {
 
     @Column
     @ColumnDefault(value = "false")
-    private boolean isComplete;
+    private String isComplete;
 
     @ManyToOne
     @JoinColumn(name = "user_entity_id")
@@ -44,6 +49,18 @@ public class QRinfo {
     @OneToOne
     @JoinColumn(name = "last_state_id")
     private LastStateInfo lastStateInfo;
+
+    public QRcode(String qrId, String productName, String invoiceNo, String isComplete, LocalDateTime cur) {
+        this.qrId = qrId;
+        this.productName = productName;
+        this.invoiceNo = invoiceNo;
+        this.isComplete = isComplete;
+        this.createdAt = cur;
+    }
+
+    public QRcode(){
+
+    }
 
     public void connectUser(UserEntity user){
         this.userEntity = user;
