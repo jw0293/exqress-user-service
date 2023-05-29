@@ -2,6 +2,9 @@ package com.example.userservice.controller;
 
 import com.example.userservice.StatusEnum;
 import com.example.userservice.dto.UserDto;
+import com.example.userservice.kafkaDto.KafkaCreateUser;
+import com.example.userservice.messagequeue.KafkaProducer;
+import com.example.userservice.messagequeue.topic.KafkaTopic;
 import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserServiceImpl;
 import com.example.userservice.vo.request.*;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 public class UserController {
     private final UserServiceImpl userService;
+    private final KafkaProducer kafkaProducer;
     private final TokenServiceImpl tokenService;
 
     @Operation(summary = "사용자 회원가입", description = "사용자가 회원가입을 시도합니다.")
@@ -46,9 +50,8 @@ public class UserController {
         UserDto userDto = mapper.map(user, UserDto.class);
         userService.createUser(userDto);
 
-        /**
-         * kafka로 Admin으로 전송해줘야함
-         */
+        KafkaCreateUser kafkaUser = userService.createKafkaUser(userDto);
+        kafkaProducer.sendCreateUser(KafkaTopic.CREATE_USER, kafkaUser);
 
         ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
 

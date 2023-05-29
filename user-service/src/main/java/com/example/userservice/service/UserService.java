@@ -1,6 +1,7 @@
 package com.example.userservice.service;
 
 import com.example.userservice.dto.UserDto;
+import com.example.userservice.kafkaDto.KafkaCreateUser;
 import com.example.userservice.vo.request.RequestLogin;
 import com.example.userservice.vo.request.RequestQRcode;
 import com.example.userservice.vo.request.RequestToken;
@@ -16,6 +17,7 @@ public interface UserService extends UserDetailsService{
     boolean isDuplicated(String email);
 
     String getUserIdThroughRequest(HttpServletRequest request);
+    KafkaCreateUser createKafkaUser(UserDto userDto);
     ResponseEntity<ResponseData> login(HttpServletRequest request, HttpServletResponse response, RequestLogin login);
     ResponseEntity<ResponseData> scanQRcode(String userId, RequestQRcode qrCode);
 

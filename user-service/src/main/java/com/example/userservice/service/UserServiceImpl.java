@@ -6,6 +6,7 @@ import com.example.userservice.dto.TokenInfo;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.entity.QRcode;
 import com.example.userservice.entity.UserEntity;
+import com.example.userservice.kafkaDto.KafkaCreateUser;
 import com.example.userservice.repository.QRcodeRepository;
 import com.example.userservice.repository.UserRepository;
 import com.example.userservice.utils.CookieUtils;
@@ -127,14 +128,16 @@ public class UserServiceImpl implements UserService{
     public UserDto createUser(UserDto userDto) {
         userDto.setUserId(UUID.randomUUID().toString());
 
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
         UserEntity userEntity = mapper.map(userDto, UserEntity.class);
         userEntity.setEncryptedPwd(bCryptPasswordEncoder.encode(userDto.getPassword()));
         userRepository.save(userEntity);
 
         return mapper.map(userEntity, UserDto.class);
+    }
+
+    @Override
+    public KafkaCreateUser createKafkaUser(UserDto userDto) {
+        return mapper.map(userDto, KafkaCreateUser.class);
     }
 
     @Override
@@ -163,6 +166,7 @@ public class UserServiceImpl implements UserService{
         else responseParcel.setIsComplete(qRcode.getIsComplete());
         responseParcel.setProductName(qRcode.getProductName());
         responseParcel.setReceiverPhoneNumber(user.getPhoneNumber());
+        responseParcel.setAddress(qRcode.getAddress());
 
         return responseParcel;
     }
