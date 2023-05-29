@@ -13,6 +13,9 @@ public class MiddleStateInfo {
     @Column(name = "middle_state_id")
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String qrId;
+
     @Column(nullable = false)
     private String deliveryName;
     @Column(nullable = false)
@@ -22,4 +25,8 @@ public class MiddleStateInfo {
 
     @OneToOne(mappedBy = "middleStateInfo")
     private QRcode qRinfo;
+
+    public void assignQRInfo(QRcode qRcode){
+        this.qRinfo = qRcode;
+    }
 }

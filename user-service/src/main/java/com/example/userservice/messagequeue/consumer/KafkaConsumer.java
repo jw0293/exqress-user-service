@@ -1,4 +1,4 @@
-package com.example.userservice.messagequeue;
+package com.example.userservice.messagequeue.consumer;
 
 import com.example.userservice.entity.QRcode;
 import com.example.userservice.entity.UserEntity;
@@ -62,7 +62,7 @@ public class KafkaConsumer {
         firstStateInfo.connectQRInfo(qRcode);
     }
 
-    @KafkaListener(topics = "delivery_start")
+    @KafkaListener(topics = KafkaTopic.DELIVERY_START)
     public void connectDelivery(String kafkaMessage){
         log.info("Get KafkaListener :" + kafkaMessage);
         Map<Object, Object> map = new HashMap<>();
@@ -72,14 +72,16 @@ public class KafkaConsumer {
             ex.printStackTrace();
         }
         MiddleStateInfo middleStateInfo = getMiddleStateInfo(map);
+        middleStateInfoRepository.save(middleStateInfo);
+
         QRcode qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
         qrInfo.setMiddleStateInfo(middleStateInfo);
-        middleStateInfo.setQRinfo(qrInfo);
-        middleStateInfoRepository.save(middleStateInfo);
+
+        middleStateInfo.assignQRInfo(qrInfo);
         qRinfoRepository.save(qrInfo);
     }
 
-    @KafkaListener(topics = "delivery_complete")
+    @KafkaListener(topics = KafkaTopic.DELIVERY_COMPLETE)
     public void connectDeliveryComplete(String kafkaMessage){
         log.info("Get KafkaListener Complete : {}", kafkaMessage);
         Map<Object, Object> map = new HashMap<>();
@@ -89,15 +91,18 @@ public class KafkaConsumer {
             e.printStackTrace();
         }
         LastStateInfo lastStateInfo = getLastStateInfo(map);
+        lastStateInfoRepository.save(lastStateInfo);
+
         QRcode qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
         qrInfo.setLastStateInfo(lastStateInfo);
-        lastStateInfo.setQRinfo(qrInfo);
-        lastStateInfoRepository.save(lastStateInfo);
+
+        lastStateInfo.assignQRcode(qrInfo);
         qRinfoRepository.save(qrInfo);
     }
 
     private FirstStateInfo getFirstStateInfo(Map<Object, Object> map){
         FirstStateInfo firstStateInfo = new FirstStateInfo();
+        firstStateInfo.setQrId((String) map.get("qrId"));
         firstStateInfo.setCurState((String)map.get("curState"));
 
         return firstStateInfo;
@@ -105,9 +110,7 @@ public class KafkaConsumer {
 
     private MiddleStateInfo getMiddleStateInfo(Map<Object, Object> map){
         MiddleStateInfo middleStateInfo = new MiddleStateInfo();
-        log.info("State Delivery Name : {}", (String) map.get("deliveryName"));
-        log.info("State Delivery Phone Number : {}", (String) map.get("deliveryPhoneNumber"));
-        log.info("State Delivery State : {}", (String) map.get("state"));
+        middleStateInfo.setQrId((String) map.get("qrId"));
         middleStateInfo.setDeliveryName((String) map.get("deliveryName"));
         middleStateInfo.setDeliveryPhoneNumber((String) map.get("deliveryPhoneNumber"));
         middleStateInfo.setCurState((String) map.get("state"));
@@ -117,9 +120,7 @@ public class KafkaConsumer {
 
     private LastStateInfo getLastStateInfo(Map<Object, Object> map){
         LastStateInfo lastStateInfo = new LastStateInfo();
-        log.info("State Delivery Name : {}", (String) map.get("deliveryName"));
-        log.info("State Delivery Phone Number : {}", (String) map.get("deliveryPhoneNumber"));
-        log.info("State Delivery State : {}", (String) map.get("state"));
+        lastStateInfo.setQrId((String) map.get("qrId"));
         lastStateInfo.setDeliveryName((String) map.get("deliveryName"));
         lastStateInfo.setDeliveryPhoneNumber((String) map.get("deliveryPhoneNumber"));
         lastStateInfo.setCurState((String) map.get("state"));

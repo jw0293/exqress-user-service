@@ -1,4 +1,4 @@
-package com.example.userservice.messagequeue;
+package com.example.userservice.messagequeue.producer;
 
 import com.example.userservice.kafkaDto.KafkaCreateUser;
 import com.fasterxml.jackson.core.JsonProcessingException;

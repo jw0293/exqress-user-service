@@ -1,4 +1,4 @@
-package com.example.userservice.messagequeue;
+package com.example.userservice.messagequeue.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

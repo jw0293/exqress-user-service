@@ -13,6 +13,9 @@ public class FirstStateInfo {
     @Column(name = "first_state_id")
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String qrId;
+
     @Column(nullable = false)
     private String curState;
 

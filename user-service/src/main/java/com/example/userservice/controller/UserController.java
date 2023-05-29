@@ -3,7 +3,7 @@ package com.example.userservice.controller;
 import com.example.userservice.StatusEnum;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.kafkaDto.KafkaCreateUser;
-import com.example.userservice.messagequeue.KafkaProducer;
+import com.example.userservice.messagequeue.producer.KafkaProducer;
 import com.example.userservice.messagequeue.topic.KafkaTopic;
 import com.example.userservice.service.TokenServiceImpl;
 import com.example.userservice.service.UserServiceImpl;
