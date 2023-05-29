@@ -21,7 +21,7 @@ public class QRcode extends BaseTimeEntity implements Serializable {
     @Column(name = "qrinfo_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String qrId;
 
     @Column(nullable = false)
@@ -33,6 +33,9 @@ public class QRcode extends BaseTimeEntity implements Serializable {
     @Column
     @ColumnDefault(value = "false")
     private String isComplete;
+
+    @Column
+    private String address;
 
     @ManyToOne
     @JoinColumn(name = "user_entity_id")

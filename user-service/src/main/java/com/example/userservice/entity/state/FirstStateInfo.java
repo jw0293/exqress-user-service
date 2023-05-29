@@ -14,12 +14,12 @@ public class FirstStateInfo {
     private Long id;
 
     @Column(nullable = false)
-    private String deliveryName;
-    @Column(nullable = false)
-    private String deliveryPhoneNumber;
-    @Column(nullable = false)
     private String curState;
 
     @OneToOne(mappedBy = "firstStateInfo")
     private QRcode qRinfo;
+
+    public void connectQRInfo(QRcode qRcode){
+        this.qRinfo = qRcode;
+    }
 }
