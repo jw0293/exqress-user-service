@@ -93,9 +93,9 @@ public class KafkaConsumer {
         LastStateInfo lastStateInfo = getLastStateInfo(map);
         lastStateInfoRepository.save(lastStateInfo);
 
-        QRcode qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
-        qrInfo.setLastStateInfo(lastStateInfo);
+        QRcode qrInfo = qRinfoRepository.findByInvoiceNo((String)map.get("qrId"));
         qrInfo.setState("complete");
+        qrInfo.setLastStateInfo(lastStateInfo);
 
         lastStateInfo.assignQRcode(qrInfo);
         qRinfoRepository.save(qrInfo);
