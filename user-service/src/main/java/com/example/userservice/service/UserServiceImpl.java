@@ -178,32 +178,6 @@ public class UserServiceImpl implements UserService{
         return tokenUtils.getAuthentication(token).getUserId();
     }
 
-    @Override
-    public ResponseEntity<ResponseData> scanQRcode(String userId, RequestQRcode requestQRcode) {
-        QRcode qrInfo = qRinfoRepository.findByQrId(requestQRcode.getQrId());
-        log.info("Find QR ID : {}", requestQRcode.getQrId());
-        log.info("Find QRInfo : {}", qrInfo);
-        log.info("Befoe Find User ID : {}", userId);
-        UserEntity user = userRepository.findByUserId(userId);
-        log.info("Find User ID : {}", user.getUserId());
-        // 찾지 못한 경우 -> 반송 처리
-        if(qrInfo == null) {
-            return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 QR_ID입니다. 반송을 요청하십시오.", "", ""), HttpStatus.NOT_FOUND);
-        }
-
-        log.info("QRInfo With Connect User : {}", qrInfo.getUserEntity().getUserId());
-        // 사용자에게 할당된 물품이 아닐 경우
-        if(!qrInfo.getUserEntity().getUserId().equals(user.getUserId())){
-            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "로그인 한 회원이 주문한 상품이 아닙니다.", "", ""), HttpStatus.BAD_REQUEST);
-        }
-
-        ResponseParcel responseParcel = createResponseParcel(user, qrInfo);
-        log.info("ResponseParcel :{}", responseParcel);
-//        ResponseQRcodeInto responseQRcodeInto = mapper.map(qrInfo, ResponseQRcodeInto.class);
-//        responseQRcodeInto.setReceiverName(user.getName());
-//        responseQRcodeInto.setPhoneNumber(user.getPhoneNumber());
-        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원이 주문한 상품이 배송 완료되었습니다.",  responseParcel, ""), HttpStatus.OK);
-    }
 
     @Override
     public ResponseEntity<ResponseData> clearPrivateInformation(String userId, String invoiceNo) {
@@ -218,19 +192,6 @@ public class UserServiceImpl implements UserService{
         return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "회원이 주문한 상품의 정보 파기가 완료되었습니다.",  "", ""), HttpStatus.OK);
     }
 
-    public ResponseEntity<ResponseData> assignQRId(String userId, RequestTemp requestTemp){
-        UserEntity user = userRepository.findByUserId(userId);
-        if(user == null) {
-            return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 회원ID입니다. ", "", ""), HttpStatus.NOT_FOUND);
-        }
-        QRcode info = mapper.map(requestTemp, QRcode.class);
-        info.connectUser(user);
-        user.addQRinfoList(info);
-
-        qRinfoRepository.save(info);
-        userRepository.save(user);
-        return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "QR정보 저장이 완료되었습니다.",  requestTemp, ""), HttpStatus.OK);
-    }
 
     @Override
     public ResponseEntity<ResponseData> requestReturnParcel(String qrId) {

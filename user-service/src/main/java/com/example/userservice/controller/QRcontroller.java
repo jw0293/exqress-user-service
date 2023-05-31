@@ -1,5 +1,6 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.service.QRcodeService;
 import com.example.userservice.service.UserServiceImpl;
 import com.example.userservice.vo.request.RequestQRcode;
 import com.example.userservice.vo.request.RequestTemp;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class QRcontroller {
 
     private final UserServiceImpl userService;
+    private final QRcodeService qRcodeService;
 
     @Operation(summary = "QR 스캔", description = "사용자가 배송된 물품의 QR코드를 스캔합니다.")
     @ApiResponses({
@@ -39,11 +41,6 @@ public class QRcontroller {
     @PostMapping("/scan")
     public ResponseEntity<ResponseData> scanQR(HttpServletRequest request, @RequestBody RequestQRcode qrCode){
         String userId = userService.getUserIdThroughRequest(request);
-        return userService.scanQRcode(userId, qrCode);
-    }
-
-    @PostMapping("/assign")
-    public ResponseEntity<ResponseData> assignQRcode(@RequestBody RequestTemp temp){
-        return userService.assignQRId(temp.getUserId(), temp);
+        return qRcodeService.scanQRcode(userId, qrCode);
     }
 }

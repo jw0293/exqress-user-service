@@ -19,7 +19,6 @@ public interface UserService extends UserDetailsService{
     String getUserIdThroughRequest(HttpServletRequest request);
     KafkaCreateUser createKafkaUser(UserDto userDto);
     ResponseEntity<ResponseData> login(HttpServletRequest request, HttpServletResponse response, RequestLogin login);
-    ResponseEntity<ResponseData> scanQRcode(String userId, RequestQRcode qrCode);
 
     ResponseEntity<ResponseData> getQRList(String userId);
     ResponseEntity<ResponseData> requestReturnParcel(String qrId);

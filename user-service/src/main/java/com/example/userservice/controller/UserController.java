@@ -32,7 +32,6 @@ public class UserController {
     private final UserServiceImpl userService;
     private final KafkaProducer kafkaProducer;
     private final TokenServiceImpl tokenService;
-
     @Operation(summary = "사용자 회원가입", description = "사용자가 회원가입을 시도합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = ResponseData.class))),
@@ -129,6 +128,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = ResponseError.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
     })
+    @PostMapping("/return")
     public ResponseEntity<?> requestReturnParcel(@RequestBody RequestQRcode requestQRcode){
         return userService.requestReturnParcel(requestQRcode.getQrId());
     }
