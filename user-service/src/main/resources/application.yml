@@ -33,7 +33,7 @@ greeting:
   message: Welcome to the exqress-user-service!
 
 token:
-  access_expiration_time: 86400
+  access_expiration_time: 864000
   refresh_expiration_time: 8640000
   secret: exqress-token
 
