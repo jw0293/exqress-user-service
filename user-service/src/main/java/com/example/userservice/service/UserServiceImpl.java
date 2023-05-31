@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService{
     public ResponseEntity<ResponseData> login(HttpServletRequest request, HttpServletResponse response, RequestLogin login) {
         UserEntity entity = userRepository.findByEmail(login.getEmail());
         if(entity == null){
-            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "존재하지 않는 배송기사 이메일입니다.", "", ""), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "존재하지 않는 회원 이메일입니다.", "", ""), HttpStatus.BAD_REQUEST);
         }
         // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
         // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService{
         //Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         UserDetails userDetails = loadUserByUsername(authenticationToken.getName());
         if(userDetails == null){
-            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "존재하지 않는 배송기사 이메일입니다.", "", ""), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "존재하지 않는 회원입니다.", "", ""), HttpStatus.BAD_REQUEST);
         }
 
         log.info("login Pwd : {}", login.getPassword());
