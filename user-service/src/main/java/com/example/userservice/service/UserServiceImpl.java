@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public String getUserIdThroughRequest(HttpServletRequest request) {
         String author = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
-        String token = author.substring(7, author.length());
+        String token = author.substring(7);
         return tokenUtils.getAuthentication(token).getUserId();
     }
 

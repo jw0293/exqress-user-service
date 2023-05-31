@@ -75,6 +75,7 @@ public class KafkaConsumer {
         middleStateInfoRepository.save(middleStateInfo);
 
         QRcode qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
+        qrInfo.setIsComplete("start");
         qrInfo.setMiddleStateInfo(middleStateInfo);
 
         middleStateInfo.assignQRInfo(qrInfo);
@@ -95,6 +96,7 @@ public class KafkaConsumer {
 
         QRcode qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
         qrInfo.setLastStateInfo(lastStateInfo);
+        qrInfo.setIsComplete("complete");
 
         lastStateInfo.assignQRcode(qrInfo);
         qRinfoRepository.save(qrInfo);
