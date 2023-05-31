@@ -10,7 +10,8 @@ import org.springframework.http.ResponseEntity;
 public interface TokenService {
 
     String createToken(UserDto userDto);
-    ResponseEntity<ResponseData> logout(RequestToken tokenInfo);
+    ResponseEntity<ResponseData> logout(String accessToken);
     ResponseEntity<ResponseData> reissue(HttpServletRequest request, HttpServletResponse response);
+    String getAccessToken(HttpServletRequest request, HttpServletResponse response);
 
 }

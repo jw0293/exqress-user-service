@@ -97,15 +97,14 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public ResponseEntity<ResponseData> logout(RequestToken logout) {
+    public ResponseEntity<ResponseData> logout(String accessToken) {
         // 1. Access Token 검증
-        if (!tokenUtils.isValidToken(logout.getAccessToken())) {
+        if (!tokenUtils.isValidToken(accessToken)) {
             return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "잘못된 요청입니다.", "", ""), HttpStatus.BAD_REQUEST);
         }
         log.info("유효한 토큰 확인");
-
         // 2. Access Token 에서 User email 을 가져옵니다.
-        ResponseUser authentication = tokenUtils.getAuthentication(logout.getAccessToken());
+        ResponseUser authentication = tokenUtils.getAuthentication(accessToken);
 
         log.info("AuthUser Name : {}", authentication.getName());
         log.info("AuthUser Email : {}", authentication.getEmail());
@@ -118,10 +117,15 @@ public class TokenServiceImpl implements TokenService {
         }
 
         // 4. 해당 Access Token 유효시간 가지고 와서 BlackList 로 저장하기
-        Long expiration = tokenUtils.getExpiration(logout.getAccessToken());
+        Long expiration = tokenUtils.getExpiration(accessToken);
         redisTemplate.opsForValue()
-                .set(logout.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+                .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
 
         return new ResponseEntity<>(new ResponseData(StatusEnum.OK.getStatusCode(), "로그아웃 되었습니다.", "", ""), HttpStatus.OK);
+    }
+
+    @Override
+    public String getAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        return request.getHeader(AuthConstants.AUTHORIZATION_HEADER).substring(AuthConstants.TOKEN_TYPE.length());
     }
 }

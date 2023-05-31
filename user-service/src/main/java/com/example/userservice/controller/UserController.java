@@ -101,11 +101,10 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content(schema = @Schema(implementation = ResponseError.class)))
     })
     @PostMapping("/signOut")
-    public ResponseEntity<?> logout(@RequestBody RequestToken logoutToken){
-        log.info("Logout accessToken : {}", logoutToken.getAccessToken());
-        log.info("Logout refreshToken : {}", logoutToken.getRefreshToken());
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response){
+        String accessToken = tokenService.getAccessToken(request, response);
 
-        return tokenService.logout(logoutToken);
+        return tokenService.logout(accessToken);
     }
 
     @Operation(summary = "사용자 개인정보 파기", description = "사용자가 자신의 개인정보를 파기합니다.")
