@@ -162,7 +162,8 @@ public class UserServiceImpl implements UserService{
         responseParcel.setProductName(qRcode.getProductName());
         responseParcel.setAddress(qRcode.getAddress());
         responseParcel.setCompany(qRcode.getCompany());
-        responseParcel.setDeliveryName(qRcode.getMiddleStateInfo().getDeliveryName());
+        if(qRcode.getMiddleStateInfo() == null) responseParcel.setDeliveryName("배송 출발 전");
+        else responseParcel.setDeliveryName(qRcode.getMiddleStateInfo().getDeliveryName());
 
         return responseParcel;
     }
