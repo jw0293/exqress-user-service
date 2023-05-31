@@ -12,11 +12,8 @@ import com.example.userservice.repository.UserRepository;
 import com.example.userservice.utils.CookieUtils;
 import com.example.userservice.utils.TokenUtils;
 import com.example.userservice.vo.request.RequestLogin;
-import com.example.userservice.vo.request.RequestQRcode;
-import com.example.userservice.vo.request.RequestTemp;
 import com.example.userservice.vo.response.ResponseData;
 import com.example.userservice.vo.response.ResponseParcel;
-import com.example.userservice.vo.response.ResponseQRcodeInto;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +35,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -162,11 +158,11 @@ public class UserServiceImpl implements UserService{
         responseParcel.setCreatedDate(qRcode.getCreatedAt().toString());
         responseParcel.setInvoiceNo(qRcode.getInvoiceNo());
         responseParcel.setReceiverName(user.getName());
-        if(qRcode.getLastStateInfo() == null) responseParcel.setIsComplete("false");
-        else responseParcel.setIsComplete(qRcode.getIsComplete());
+        responseParcel.setState(qRcode.getState());
         responseParcel.setProductName(qRcode.getProductName());
-        responseParcel.setReceiverPhoneNumber(user.getPhoneNumber());
         responseParcel.setAddress(qRcode.getAddress());
+        responseParcel.setCompany(qRcode.getCompany());
+        responseParcel.setDeliveryName(qRcode.getMiddleStateInfo().getDeliveryName());
 
         return responseParcel;
     }
@@ -183,7 +179,7 @@ public class UserServiceImpl implements UserService{
     public ResponseEntity<ResponseData> clearPrivateInformation(String userId, String invoiceNo) {
         QRcode qrInfo = qRinfoRepository.findByInvoiceNo(invoiceNo);
         if(qrInfo == null) {
-            return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 QR ID입니다. ", "", ""), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 운송장 번호입니다. ", "", ""), HttpStatus.NOT_FOUND);
         }
         if(!qrInfo.getUserEntity().getUserId().equals(userId)){
             return new ResponseEntity<>(new ResponseData(StatusEnum.BAD_REQUEST.getStatusCode(), "로그인 한 회원이 주문한 상품이 아닙니다.", "", ""), HttpStatus.BAD_REQUEST);

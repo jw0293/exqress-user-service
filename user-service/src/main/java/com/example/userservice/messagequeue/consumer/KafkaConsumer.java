@@ -59,6 +59,7 @@ public class KafkaConsumer {
         firstStateInfoRepository.save(firstStateInfo);
 
         QRcode qRcode = saveQRcode(map, firstStateInfo);
+        qRcode.setState("ready");
         firstStateInfo.connectQRInfo(qRcode);
     }
 
@@ -75,7 +76,7 @@ public class KafkaConsumer {
         middleStateInfoRepository.save(middleStateInfo);
 
         QRcode qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
-        qrInfo.setIsComplete("start");
+        qrInfo.setState("start");
         qrInfo.setMiddleStateInfo(middleStateInfo);
 
         middleStateInfo.assignQRInfo(qrInfo);
@@ -96,7 +97,7 @@ public class KafkaConsumer {
 
         QRcode qrInfo = qRinfoRepository.findByQrId((String)map.get("qrId"));
         qrInfo.setLastStateInfo(lastStateInfo);
-        qrInfo.setIsComplete("complete");
+        qrInfo.setState("complete");
 
         lastStateInfo.assignQRcode(qrInfo);
         qRinfoRepository.save(qrInfo);
@@ -135,9 +136,10 @@ public class KafkaConsumer {
         qRcode.setQrId((String) map.get("qrId"));
         qRcode.setAddress((String) map.get("address"));
         qRcode.setInvoiceNo((String) map.get("invoiceNo"));
-        qRcode.setIsComplete((String) map.get("curState"));
+        qRcode.setState((String) map.get("curState"));
         qRcode.setProductName((String) map.get("productName"));
         qRcode.setAddress((String) map.get("address"));
+        qRcode.setCompany((String) map.get("company"));
         qRcode.setFirstStateInfo(firstStateInfo);
 
         UserEntity userEntity = userRepository.findByUserId((String) map.get("userId"));

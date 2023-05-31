@@ -32,10 +32,13 @@ public class QRcode extends BaseTimeEntity implements Serializable {
 
     @Column
     @ColumnDefault(value = "false")
-    private String isComplete;
+    private String state;
 
-    @Column
+    @Column(nullable = false)
     private String address;
+
+    @Column(nullable = false)
+    private String company;
 
     @ManyToOne
     @JoinColumn(name = "user_entity_id")
@@ -57,7 +60,7 @@ public class QRcode extends BaseTimeEntity implements Serializable {
         this.qrId = qrId;
         this.productName = productName;
         this.invoiceNo = invoiceNo;
-        this.isComplete = isComplete;
+        this.state = isComplete;
         this.createdAt = cur;
     }
 

@@ -65,11 +65,11 @@ public class QRcodeService {
         responseParcel.setCreatedDate(qRcode.getCreatedAt().toString());
         responseParcel.setInvoiceNo(qRcode.getInvoiceNo());
         responseParcel.setReceiverName(user.getName());
-        if(qRcode.getLastStateInfo() == null) responseParcel.setIsComplete("false");
-        else responseParcel.setIsComplete(qRcode.getIsComplete());
+        responseParcel.setState(qRcode.getState());
         responseParcel.setProductName(qRcode.getProductName());
-        responseParcel.setReceiverPhoneNumber(user.getPhoneNumber());
         responseParcel.setAddress(qRcode.getAddress());
+        responseParcel.setCompany(qRcode.getCompany());
+        responseParcel.setDeliveryName(qRcode.getMiddleStateInfo().getDeliveryName());
 
         return responseParcel;
     }
