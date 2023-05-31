@@ -55,20 +55,4 @@ public class QRcode extends BaseTimeEntity implements Serializable {
     @OneToOne
     @JoinColumn(name = "last_state_id")
     private LastStateInfo lastStateInfo;
-
-    public QRcode(String qrId, String productName, String invoiceNo, String isComplete, LocalDateTime cur) {
-        this.qrId = qrId;
-        this.productName = productName;
-        this.invoiceNo = invoiceNo;
-        this.state = isComplete;
-        this.createdAt = cur;
-    }
-
-    public QRcode(){
-
-    }
-
-    public void connectUser(UserEntity user){
-        this.userEntity = user;
-    }
 }
