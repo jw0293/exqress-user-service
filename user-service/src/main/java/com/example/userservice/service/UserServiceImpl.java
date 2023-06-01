@@ -178,6 +178,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public ResponseEntity<ResponseData> clearPrivateInformation(String userId, String invoiceNo) {
+        log.info("Clear Feature InvoiceNo : {}", invoiceNo);
         QRcode qrInfo = qRinfoRepository.findByInvoiceNo(invoiceNo);
         if(qrInfo == null) {
             return new ResponseEntity<>(new ResponseData(StatusEnum.NOT_FOUND.getStatusCode(), "등록되지 않은 운송장 번호입니다. ", "", ""), HttpStatus.NOT_FOUND);
