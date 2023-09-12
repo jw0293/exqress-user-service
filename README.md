@@ -17,8 +17,8 @@
 <h3>본 프로젝트에 참여하는 팀원과 팀원의 역할은 다음과 같다.</h3>
 
 * [김재한](https://github.com/kim-limit), Frontend 및 UI/UX 설계 및 기능 구현
-* [김중원](https://github.com/jw0293), Backend 및 Database 설계 및 기능 구현
-* [신현식](https://github.com/hsshin0602), Infra 설계 및 CI/CD 구축
+* [김중원](https://github.com/jw0293), Backend 및 Database/Infra 설계 및 기능 구현
+* [신현식](https://github.com/hsshin0602), Infra/Kubernetes 네트워크 설계 및 CI/CD 구축
 
 </br> 
 <h3>참여 과제</h3>
