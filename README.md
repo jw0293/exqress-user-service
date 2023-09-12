@@ -132,7 +132,7 @@
 </br>
 <h2>프로젝트 자료</h2>
 
-* [설계](https://mirage-switch-16b.notion.site/Design-92b76073780044b89d23fe2374437eee)
+* [프로젝트 설계](https://mirage-switch-16b.notion.site/Design-92b76073780044b89d23fe2374437eee)
 * [프로젝트 회의록](https://mirage-switch-16b.notion.site/fdc0404de4d24413b7cfa78d2cf2f4aa)
 * [프로젝트 보고서](https://mirage-switch-16b.notion.site/Document-History-b63cbe27f08d4319a4397544854d0804)
 * [프로젝트 시연영상](https://www.youtube.com/watch?v=ZWRUPMGKLO0&t=3s)
